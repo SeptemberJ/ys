@@ -1,88 +1,145 @@
 <template>
   <div class="AddOrder">
-    <el-card class="box-card">
-      <div slot="header" class="clearfix TextAlignL">
-        <span class="columnTit">发货人信息</span>
-        <el-image style="width: 20px; height: 20px;float: right;" src="../../../static\images\icon\addAddr.png" fit="cover" @click="addOneFInfo"></el-image>
-      </div>
-      <div class="InfoList" v-for="(FaItem, FIdx) in fInfo" :key="FIdx">
-        <div class="faBlocksAddr">
-          <el-badge :value="fInfo.length > 1 ? FIdx + 1 : ''" class="item" style="float: left;">
-            <el-image class="LeftIcon" src="../../../static\images\icon\fa.png" fit="cover"></el-image>
-          </el-badge>
-          <div class="MiddleAddr CursorPointer" @click="changePersonInfo(0, FIdx)">
-            <p><span style="margin-right: 20px;">{{FaItem.fname}}</span><span>{{FaItem.fmobile}}</span></p>
-            <p>{{FaItem.addr}} {{FaItem.faddress}}</p>
+    <section v-if="step == 1">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix TextAlignL">
+          <span class="columnTit">发货人信息</span>
+          <el-image class="CursorPointer" style="width: 20px; height: 20px;float: right;" src="../../../static\images\icon\addAddr.png" fit="cover" @click="addOneFInfo"></el-image>
+        </div>
+        <div class="InfoList" v-for="(FaItem, FIdx) in fInfo" :key="FIdx">
+          <div v-if="FIdx != 0" style="width: 100%;height: 20px;">
+            <el-image class="CursorPointer" style="width: 20px; height: 20px;display:block;float: right;" src="../../../static\images\icon\moveAddr.png" fit="cover" @click="moveOneFInfo(FIdx)"></el-image>
           </div>
-          <el-image class="RightArrow CursorPointer" src="../../../static\images\icon\right-arrow.png" @click="changePersonInfo(0, FIdx)" fit="cover"></el-image>
-        </div>
-        <el-divider></el-divider>
-        <div class="faBlocksTime CursorPointer" @click="toChooseTime('发货', FIdx)">
-          <span>装货时间</span>
-          <div class="TimeBlock">{{FaItem.date}} {{FaItem.stage}} {{FaItem.time}}</div>
-          <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
-        </div>
-      </div>
-    </el-card>
-    <!-- 收货人信息 -->
-    <el-card class="box-card MarginT_20">
-      <div slot="header" class="clearfix TextAlignL">
-        <span class="columnTit">收货人信息</span>
-        <el-image style="width: 20px; height: 20px;float: right;" src="../../../static\images\icon\addAddr.png" fit="cover"></el-image>
-      </div>
-      <div class="InfoList" v-for="(SItem, SIdx) in sInfo" :key="SIdx">
-        <div class="faBlocksAddr">
-          <el-badge :value="sInfo.length > 1 ? SIdx + 1 : ''" class="item" style="float: left;">
-            <el-image class="LeftIcon" src="../../../static\images\icon\shou.png" fit="cover"></el-image>
-          </el-badge>
-          <div class="MiddleAddr CursorPointer">
-            <p><span style="margin-right: 20px;">{{SItem.person}}</span><span>{{SItem.phone}}</span></p>
-            <p>{{SItem.addr}}</p>
+          <div class="faBlocksAddr">
+            <el-badge :value="fInfo.length > 1 ? FIdx + 1 : ''" class="item" style="float: left;">
+              <el-image class="LeftIcon" src="../../../static\images\icon\fa.png" fit="cover"></el-image>
+            </el-badge>
+            <div class="MiddleAddr CursorPointer" @click="changePersonInfo(0, FIdx, FaItem)">
+              <p><span style="margin-right: 20px;">{{FaItem.fperson}}</span><span>{{FaItem.fphone}}</span></p>
+              <p>{{FaItem.province}}{{FaItem.city}}{{FaItem.area}} {{FaItem.addr}}</p>
+            </div>
+            <el-image class="RightArrow CursorPointer" src="../../../static\images\icon\right-arrow.png" @click="changePersonInfo(0, FIdx, FaItem)" fit="cover"></el-image>
           </div>
-          <el-image class="RightArrow CursorPointer" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
-        </div>
-        <el-divider></el-divider>
-        <div class="faBlocksTime CursorPointer" @click="toChooseTime('收货', SIdx)">
-          <span>卸货时间</span>
-          <div class="TimeBlock">{{SItem.date}} {{SItem.stage}} {{SItem.time}}</div>
-          <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
-        </div>
-      </div>
-    </el-card>
-    <!-- 其他信息 -->
-    <el-card class="box-card MarginT_20">
-      <div slot="header" class="clearfix TextAlignL">
-        <span class="columnTit">其他信息</span>
-      </div>
-      <div class="InfoList">
-        <div class="otherInfoBlocks CursorPointer" @click="toChooseCarType">
-          <span>车型车长</span>
-          <div class="MiddleAddr">
-            <p v-if="carLongString">{{carKind}} 车型：{{carTypeString}}</p>
-            <p v-if="carLongString">车长：{{carLongString}}</p>
+          <el-divider></el-divider>
+          <div class="faBlocksTime CursorPointer" @click="toChooseTime('发货', FIdx)">
+            <span>装货时间</span>
+            <div class="TimeBlock">{{FaItem.date}} {{FaItem.stage}} {{FaItem.time}}</div>
+            <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
           </div>
-          <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
         </div>
-        <el-divider></el-divider>
-        <div class="otherInfoBlocks CursorPointer" @click="toWeightVolume">
-          <span>重量体积</span>
-          <div class="MiddleAddr">{{weightVolumeString}}</div>
-          <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
+      </el-card>
+      <!-- 收货人信息 -->
+      <el-card class="box-card MarginT_20">
+        <div slot="header" class="clearfix TextAlignL">
+          <span class="columnTit">收货人信息</span>
+          <el-image class="CursorPointer" style="width: 20px; height: 20px;float: right;" src="../../../static\images\icon\addAddr.png" fit="cover" @click="addOneSInfo"></el-image>
         </div>
-        <el-divider></el-divider>
-        <div class="otherInfoBlocks CursorPointer">
-          <span>装卸次数</span>
-          <div class="MiddleAddr">1装1卸</div>
-          <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
+        <div class="InfoList" v-for="(SItem, SIdx) in sInfo" :key="SIdx">
+          <div v-if="SIdx != 0" style="width: 100%;height: 20px;">
+            <el-image class="CursorPointer" style="width: 20px; height: 20px;display:block;float: right;" src="../../../static\images\icon\moveAddr.png" fit="cover" @click="moveOneSInfo(SIdx)"></el-image>
+          </div>
+          <div class="faBlocksAddr">
+            <el-badge :value="sInfo.length > 1 ? SIdx + 1 : ''" class="item" style="float: left;">
+              <el-image class="LeftIcon" src="../../../static\images\icon\shou.png" fit="cover"></el-image>
+            </el-badge>
+            <div class="MiddleAddr CursorPointer" @click="changePersonInfo(1, SIdx, SItem)">
+              <p><span style="margin-right: 20px;">{{SItem.sperson}}</span><span>{{SItem.sphone}}</span></p>
+              <p>{{SItem.province}}{{SItem.city}}{{SItem.area}} {{SItem.addr}}</p>
+            </div>
+            <el-image class="RightArrow CursorPointer" src="../../../static\images\icon\right-arrow.png" @click="changePersonInfo(1, SIdx, SItem)" fit="cover"></el-image>
+          </div>
+          <el-divider></el-divider>
+          <div class="faBlocksTime CursorPointer" @click="toChooseTime('收货', SIdx)">
+            <span>卸货时间</span>
+            <div class="TimeBlock">{{SItem.date}} {{SItem.stage}} {{SItem.time}}</div>
+            <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
+          </div>
         </div>
-      </div>
-    </el-card>
-    <!-- next step -->
-    <el-button class="MarginT_20" type="primary">下一步<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+      </el-card>
+      <!-- 其他信息 -->
+      <el-card class="box-card MarginT_20">
+        <div slot="header" class="clearfix TextAlignL">
+          <span class="columnTit">其他信息</span>
+        </div>
+        <div class="InfoList">
+          <div class="otherInfoBlocks CursorPointer" @click="toChooseCarType">
+            <span>车型车长</span>
+            <div class="MiddleAddr">
+              <p v-if="carLongString">{{carKind}} 车型：{{carTypeString}}</p>
+              <p v-if="carLongString">车长：{{carLongString}}</p>
+            </div>
+            <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer" @click="toWeightVolume">
+            <span>重量体积</span>
+            <div class="MiddleAddr">{{weightVolumeString}}</div>
+            <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer">
+            <span>装卸次数</span>
+            <div class="MiddleAddr">1装1卸</div>
+            <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
+          </div>
+        </div>
+      </el-card>
+      <!-- next step -->
+      <el-button class="MarginT_20" type="primary">下一步<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+    </section>
+    <section v-if="step == 2">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix TextAlignL">
+          <span class="columnTit">货物信息</span>
+        </div>
+        <div class="InfoList">
+          <div class="faBlocksAddr">
+            <el-image class="LeftIcon" src="../../../static\images\icon\huo.png" fit="cover"></el-image>
+            <div class="MiddleAddr CursorPointer" @click="toChooseGoods">
+              <p style="line-height: 50px;"><el-tag>标签一</el-tag><el-tag>标签一</el-tag></p>
+            </div>
+            <el-image class="RightArrow CursorPointer" src="../../../static\images\icon\right-arrow.png" @click="toChooseGoods" fit="cover"></el-image>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer" @click="toChooseService">
+            <span>需求备注</span>
+            <div class="MiddleAddr">
+              <p>{{serviceString.substring(2)}}</p>
+              <p>{{note}}</p>
+            </div>
+            <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer">
+            <span>指派车主</span>
+            <div class="MiddleAddr"></div>
+            <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer" @click="toChooseFee">
+            <span>期望运费</span>
+            <div class="MiddleAddr">{{feeString}}</div>
+            <el-image class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"></el-image>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer">
+            <span>购买运货险</span> <span style="padding-left:10px;">(满30减5元)</span>
+            <el-switch v-model="insurance" style="float:right;margin-top:18px;"></el-switch>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer">
+            <span>存为常发货源</span>
+            <el-switch v-model="saveOften" style="float:right;margin-top:18px;"></el-switch>
+          </div>
+        </div>
+      </el-card>
+      <el-button class="MarginT_20" type="primary">确认发货</el-button>
+    </section>
     <!-- 选择弹窗 -->
-    <!-- 发货人信息 -->
-    <el-dialog class="PersonInfoForm" title="添加发货人信息" :visible.sync="fInfoDialogVisible" width="520px" center :close-on-click-modal="false">
-      <div class="MainBox">
+    <!-- 发货人/收货人信息 -->
+    <el-dialog class="PersonInfoForm" :title="curPersonInfoType == 0 ? '添加发货人信息' : '添加收货人信息'" :visible.sync="contractInfoDialogVisible" width="520px" center :close-on-click-modal="false">
+      <!-- 发货人信息 -->
+      <div class="MainBox" v-if="curPersonInfoType == 0">
         <el-form ref="formFInfo" :model="formFInfo" label-width="140px" label-position="left" size="small">
           <el-form-item label="请选择城市/区域" size="small">
             <el-select v-model="formFInfo.province" placeholder="请选择" style="width: 100px;" @change="changeProvince">
@@ -140,11 +197,65 @@
           title="联系人"
           :visible.sync="contactListDialogVisible"
           append-to-body>
-          <Contacts v-if="contactListDialogVisible" ref="ContactsChild" :contractType="contractType" @backContractInfo="backContractInfo"/>
+          <Contacts v-if="curPersonInfoType == 0 && contactListDialogVisible" ref="ContactsChild" :contractType="contractType" @backContractInfo="backContractInfo"/>
+        </el-dialog>
+      </div>
+      <!-- 收货人信息 -->
+      <div class="MainBox" v-if="curPersonInfoType == 1">
+        <el-form ref="formSInfo" :model="formSInfo" label-width="140px" label-position="left" size="small">
+          <el-form-item label="请选择城市/区域" size="small">
+            <el-select v-model="formSInfo.province" placeholder="请选择" style="width: 100px;" @change="changeProvince">
+              <el-option
+                v-for="item in ProvinceOptions"
+                :key="item.id"
+                :label="item.fname"
+                :value="item.id">
+              </el-option>
+            </el-select>
+            <el-select v-model="formSInfo.city" placeholder="请选择" style="width: 100px;" @change="changeCity">
+              <el-option
+                v-for="item in CityOptions"
+                :key="item.sareacode"
+                :label="item.sareaname"
+                :value="item.sareacode">
+              </el-option>
+            </el-select>
+            <el-select v-model="formSInfo.area" placeholder="请选择" style="width: 100px;" @change="changeArea">
+              <el-option
+                v-for="item in AreaOptions"
+                :key="item.id"
+                :label="item.fareaname"
+                :value="item.fareacode">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="收货详细地址" size="small">
+            <el-input v-model="formSInfo.addr"></el-input>
+          </el-form-item>
+          <el-form-item label="收货人" size="small">
+            <el-input v-model="formSInfo.sperson" style="width: 85%"></el-input>
+            <i class="iconfont-icons ifc-iconcontacts CursorPointer" @click="chooseContact(1)" style="color:#66b1ff;font-size:30px;float:right;"></i>
+          </el-form-item>
+          <el-form-item label="收货人电话" size="small">
+            <el-input v-model="formSInfo.sphone"></el-input>
+          </el-form-item>
+          <el-form-item label="固定电话" size="small">
+            <el-input v-model="formSInfo.stell"></el-input>
+          </el-form-item>
+          <el-form-item label="保存为常用发货人" size="small">
+            <el-switch v-model="formSInfo.ifSavePerson" style="float:right;margin-top:6px;"></el-switch>
+          </el-form-item>
+        </el-form>
+        <el-dialog
+          width="650px"
+          title="联系人"
+          :visible.sync="contactListDialogVisible"
+          append-to-body>
+          <Contacts v-if="curPersonInfoType == 1 && contactListDialogVisible" ref="ContactsChild" :contractType="contractType" @backContractInfo="backContractInfo"/>
         </el-dialog>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="fInfoDialogVisible = false">取 消</el-button>
+        <el-button @click="contractInfoDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="sureAddFPerson">确 定</el-button>
       </span>
     </el-dialog>
@@ -240,23 +351,108 @@
         <el-button type="primary" @click="sureWeightVolume">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 货物名称 -->
+    <el-dialog title="货物类型" :visible.sync="goodsDialogVisible" width="450px" center :close-on-click-modal="false">
+      <div class="MainBox">
+        <el-select style="width: 100%;"
+          v-model="goodsKeyWord"
+          filterable
+          remote
+          reserve-keyword
+          placeholder="请输入您想要的货物"
+          @change="chooseGoodsName"
+          :remote-method="remoteMethod"
+          :loading="searchLoading">
+          <el-option
+            v-for="item in goodsNameoptions"
+            :key="item.fname"
+            :label="item.fname"
+            :value="item.fname">
+            <span style="float: left">{{ item.fname }}</span>
+            <span style="float: right; color: #8492a6; font-size: 13px">{{ item.fname1 }}</span>
+          </el-option>
+        </el-select>
+        <!-- <el-input placeholder="请输入您想要的货物" v-model="goodsKeyWord" class="input-with-select">
+          <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+        </el-input> -->
+        <div class="ChoosedGoods MarginTB_20">
+          <el-badge value="X" type="primary" v-for="(item, idx) in choosedGoods" :key="idx" style="margin-right: 15px;">
+            <el-button size="small">{{item}}</el-button>
+          </el-badge>
+        </div>
+        <p class="MarginTB_20" style="border-left:10px solid #409EFF;padding-left:10px;"><span>热门货物类型</span><span style="float:right;">查看更多></span></p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="goodsDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sureService">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 期望运费 -->
+    <el-dialog title="期望运费" :visible.sync="feeDialogVisible" width="450px" center :close-on-click-modal="false">
+      <div class="MainBox">
+        <el-form ref="formFee" :model="formFee" label-width="80px" label-position="left">
+          <el-form-item label="期望运费">
+            <el-input v-model="formFee.price" type="number" placeholder="请填写运费金额">
+              <template slot="append">元 / 趟</template>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="使用油卡">
+            <el-input v-model="formFee.oil" type="number" placeholder="请填写油卡金额，选填">
+              <template slot="append">元</template>
+            </el-input>
+          </el-form-item>
+        </el-form>
+        <p class="MarginTB_10" style="border-left:10px solid #409EFF;padding-left:10px;">使用油卡须知</p>
+        <p style="font-size:12px;">1. 油卡的使用金额不得大于运费金额</p>
+        <p style="font-size:12px;">2. 使用油卡的金额无法开票</p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="feeDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sureFee">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 需求备注 -->
+    <el-dialog title="需求备注" :visible.sync="serviceDialogVisible" width="450px" center :close-on-click-modal="false">
+      <div class="MainBox">
+        <el-input
+          type="textarea"
+          placeholder="请输入备注，最多50个字"
+          v-model="note"
+          maxlength="50"
+          show-word-limit>
+        </el-input>
+        <p class="MarginTB_20" style="border-left:10px solid #409EFF;padding-left:10px;">服务需求</p>
+        <el-checkbox-group v-model="services" size="small" style="text-align:left;">
+          <el-checkbox v-for="(Service, ServiceIdx) in serviceOptions" :key="ServiceIdx" :label="Service.typename" border style="width:115px;">{{Service.typename}}</el-checkbox>
+        </el-checkbox-group>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="serviceDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sureService">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex' // mapActions
-import { formatToString } from '../../util/utils'
+import { formatToString, objDeepCopy } from '../../util/utils'
 import Contacts from './Contact'
 export default {
   name: 'AddOrder',
   // props: ['orderType'],
   data () {
     return {
+      step: 2,
+      searchLoading: false,
       dateTimeDialogVisible: false,
       carTypeDialogVisible: false,
       weightVolumeDialogVisible: false,
-      fInfoDialogVisible: false,
+      contractInfoDialogVisible: false,
       contactListDialogVisible: false,
+      goodsDialogVisible: false,
+      feeDialogVisible: false,
+      serviceDialogVisible: false,
       // 两个时间
       formDateTime: {
         date: '',
@@ -302,14 +498,63 @@ export default {
         tphone: '',
         ifSavePerson: false
       },
+      formSInfo: {
+        provinceId: '',
+        province: '',
+        city: '',
+        cityId: '',
+        areaId: '',
+        area: '',
+        addr: '',
+        sperson: '',
+        sphone: '',
+        stell: '',
+        ifSavePerson: false
+      },
       contractType: null,
       curPersonInfoIdx: null,
-      curPersonInfoType: null, // 0 发货 1 收获
+      curPersonInfoType: null, // 0 发货 1 收货
       fInfo: [
-        {addr: '', faddress: '', fareacode: '', fareaname: '', fmobile: '', fmobile1: '', fname: '', fname1: '', ftype: 0, date: '', stage: '', time: ''}
+        {
+          provinceId: '',
+          province: '',
+          city: '',
+          cityId: '',
+          areaId: '',
+          area: '',
+          addr: '',
+          fperson: '',
+          fphone: '',
+          ifSame: false,
+          tperson: '',
+          tphone: '',
+          ifSavePerson: false,
+          ftype: 0,
+          date: '',
+          stage: '',
+          time: ''
+        }
+        // {addr: '', faddress: '', fareacode: '', fareaname: '', fmobile: '', fmobile1: '', fname: '', fname1: '', ftype: 0, date: '', stage: '', time: ''}
       ],
       sInfo: [
-        {person: '汪琪2', phone: '13888886666', addr: '上海市宝山区城银路555弄6号楼2楼', date: '2019-10-15', stage: '上午', time: '都可以'}
+        {
+          provinceId: '',
+          province: '',
+          city: '',
+          cityId: '',
+          areaId: '',
+          area: '',
+          addr: '',
+          sperson: '',
+          sphone: '',
+          stell: '',
+          ifSavePerson: false,
+          ftype: 1,
+          date: '',
+          stage: '',
+          time: ''
+        }
+        // {addr: '', faddress: '', fareacode: '', fareaname: '', fmobile: '', fmobile1: '', fname: '', fname1: '', ftype: 0, date: '', stage: '', time: ''}
       ],
       ProvinceOptions: [],
       CityOptions: [],
@@ -327,7 +572,19 @@ export default {
         volumeS: '',
         volumeE: ''
       },
-      weightVolumeString: ''
+      weightVolumeString: '',
+      // 货物信息
+      choosedGoods: [],
+      goodsKeyWord: '',
+      goodsNameoptions: [],
+      formFee: {price: '', oil: ''},
+      feeString: '',
+      note: '',
+      serviceString: '',
+      services: [],
+      serviceOptions: [],
+      insurance: false,
+      saveOften: false
     }
   },
   computed: {
@@ -487,23 +744,24 @@ export default {
         this.$refs['formDateTime'].resetFields()
       }
     },
-    fInfoDialogVisible: function (value) {
+    contractInfoDialogVisible: function (value) {
       if (value) {
         this.getProvince()
       }
     },
+    // 发货人
     'formFInfo.province': function (value) {
       if (value) {
         this.formFInfo.city = ''
         this.formFInfo.area = ''
         this.AreaOptions = []
-        this.getCity()
+        this.getCity(0)
       }
     },
     'formFInfo.city': function (value) {
       if (value) {
         this.formFInfo.area = ''
-        this.getArea()
+        this.getArea(0)
       }
     },
     'formFInfo.fperson': function (value) {
@@ -525,6 +783,21 @@ export default {
       if (value !== this.formFInfo.fphone) {
         this.formFInfo.ifSame = false
       }
+    },
+    // 收货人
+    'formSInfo.province': function (value) {
+      if (value) {
+        this.formSInfo.city = ''
+        this.formSInfo.area = ''
+        this.AreaOptions = []
+        this.getCity(1)
+      }
+    },
+    'formSInfo.city': function (value) {
+      if (value) {
+        this.formSInfo.area = ''
+        this.getArea(1)
+      }
     }
   },
   created () {
@@ -535,46 +808,113 @@ export default {
   methods: {
     addOneFInfo () {
       this.fInfo.push({
+        provinceId: '',
+        province: '',
+        city: '',
+        cityId: '',
+        areaId: '',
+        area: '',
         addr: '',
-        faddress: '',
-        fareacode: '',
-        fareaname: '',
-        fmobile: '',
-        fmobile1: '',
-        fname: '',
-        fname1: '',
+        fperson: '',
+        fphone: '',
+        ifSame: false,
+        tperson: '',
+        tphone: '',
+        ifSavePerson: false,
         ftype: 0,
         date: '',
         stage: '',
         time: ''
       })
     },
-    changePersonInfo (type, idx) {
+    moveOneFInfo (idx) {
+      this.fInfo.splice(idx, 1)
+    },
+    addOneSInfo () {
+      this.sInfo.push({
+        provinceId: '',
+        province: '',
+        city: '',
+        cityId: '',
+        areaId: '',
+        area: '',
+        addr: '',
+        sperson: '',
+        sphone: '',
+        stell: '',
+        ifSavePerson: false,
+        ftype: 1,
+        date: '',
+        stage: '',
+        time: ''
+      })
+    },
+    moveOneSInfo (idx) {
+      this.sInfo.splice(idx, 1)
+    },
+    changePersonInfo (type, idx, row) {
+      let rowInfo = objDeepCopy(row)
+      if (type === 0) {
+        this.formFInfo = row
+        setTimeout(() => {
+          this.formFInfo.city = rowInfo.city
+          this.formFInfo.cityId = rowInfo.cityId
+        }, 10)
+        setTimeout(() => {
+          this.formFInfo.area = rowInfo.area
+          this.formFInfo.areaId = rowInfo.areaId
+        }, 20)
+      } else {
+        this.formSInfo = row
+        setTimeout(() => {
+          this.formSInfo.city = rowInfo.city
+          this.formSInfo.cityId = rowInfo.cityId
+        }, 10)
+        setTimeout(() => {
+          this.formSInfo.area = rowInfo.area
+          this.formSInfo.areaId = rowInfo.areaId
+        }, 20)
+      }
       this.curPersonInfoIdx = idx
       this.curPersonInfoType = type
-      this.fInfoDialogVisible = true
+      this.contractInfoDialogVisible = true
     },
     changeProvince (id) {
       this.ProvinceOptions.find(Province => {
         if (Province.id === id) {
-          this.formFInfo.province = Province.fname
-          this.formFInfo.provinceId = Province.id
+          if (this.curPersonInfoType === 0) {
+            this.formFInfo.province = Province.fname
+            this.formFInfo.provinceId = Province.id
+          } else {
+            this.formSInfo.province = Province.fname
+            this.formSInfo.provinceId = Province.id
+          }
         }
       })
     },
     changeCity (id) {
       this.CityOptions.find(City => {
         if (City.sareacode === id) {
-          this.formFInfo.city = City.sareaname
-          this.formFInfo.cityId = City.sareacode
+          if (this.curPersonInfoType === 0) {
+            this.formFInfo.city = City.sareaname
+            this.formFInfo.cityId = City.sareacode
+          } else {
+            this.formSInfo.city = City.sareaname
+            this.formSInfo.cityId = City.sareacode
+          }
         }
       })
     },
     changeArea (id) {
       this.AreaOptions.find(Area => {
         if (Area.fareacode === id) {
-          this.formFInfo.area = Area.fareaname
-          this.formFInfo.areaId = Area.fareacode
+          if (this.curPersonInfoType === 0) {
+            this.formFInfo.area = Area.fareaname
+            this.formFInfo.areaId = Area.fareacode
+          } else {
+            this.formSInfo.area = Area.fareaname
+            this.formSInfo.areaId = Area.fareacode
+          }
         }
       })
     },
@@ -586,7 +926,7 @@ export default {
     // 填充返回选择的联系人
     backContractInfo (type, personInfo) {
       this.formFInfo.ifSame = false
-      // 0 发货人 1 提货人 2 发货人且提货人
+      // 0 发货人 1 提货人 2 发货人且提货人 3 收货人
       switch (type) {
         case 0:
           this.formFInfo.fperson = personInfo.fname
@@ -624,6 +964,22 @@ export default {
             this.formFInfo.areaId = personInfo.fareacode
           }, 20)
           break
+        case 3:
+          this.formSInfo.sperson = personInfo.fname
+          this.formSInfo.sphone = personInfo.fmobile
+          this.formSInfo.stell = personInfo.fmobile1
+          this.formSInfo.addr = personInfo.faddress
+          this.formSInfo.province = personInfo.pareaname
+          this.formSInfo.provinceId = personInfo.pareacode
+          setTimeout(() => {
+            this.formSInfo.city = personInfo.sareaname
+            this.formSInfo.cityId = personInfo.sareacode
+          }, 10)
+          setTimeout(() => {
+            this.formSInfo.area = personInfo.fareaname
+            this.formSInfo.areaId = personInfo.fareacode
+          }, 20)
+          break
       }
       this.contactListDialogVisible = false
     },
@@ -636,18 +992,12 @@ export default {
     sureAddFPerson () {
       switch (this.curPersonInfoType) {
         case 0:
-          this.fInfo[this.curPersonInfoIdx].addr = this.formFInfo.province + this.formFInfo.city + this.formFInfo.area
-          this.fInfo[this.curPersonInfoIdx].faddress = this.formFInfo.addr
-          this.fInfo[this.curPersonInfoIdx].fareacode = this.formFInfo.areaId
-          this.fInfo[this.curPersonInfoIdx].fareaname = this.formFInfo.area
-          this.fInfo[this.curPersonInfoIdx].fmobile = this.formFInfo.fphone
-          this.fInfo[this.curPersonInfoIdx].fmobile1 = this.formFInfo.tphone
-          this.fInfo[this.curPersonInfoIdx].fname = this.formFInfo.fperson
-          this.fInfo[this.curPersonInfoIdx].fname1 = this.formFInfo.tperson
-          this.fInfoDialogVisible = false
+          this.fInfo[this.curPersonInfoIdx] = this.formFInfo
+          this.contractInfoDialogVisible = false
           break
         case 1:
-          this.sInfo[this.curPersonInfoIdx] = this.formFInfo
+          this.sInfo[this.curPersonInfoIdx] = this.formSInfo
+          this.contractInfoDialogVisible = false
           break
       }
     },
@@ -886,9 +1236,9 @@ export default {
         console.log(res)
       })
     },
-    getCity () {
+    getCity (type) {
       this.send({
-        name: '/tokens/regionSelect?pid=' + this.formFInfo.provinceId + '&ftype=0&fname=' + this.formFInfo.province,
+        name: '/tokens/regionSelect?pid=' + (type === 0 ? this.formFInfo.provinceId : this.formSInfo.provinceId) + '&ftype=0&fname=' + (type === 0 ? this.formFInfo.province : this.formSInfo.province),
         method: 'GET'
       }).then(res => {
         if (res.data.respCode === '0') {
@@ -903,9 +1253,9 @@ export default {
         console.log(res)
       })
     },
-    getArea () {
+    getArea (type) {
       this.send({
-        name: '/tokens/regionSelect?pid=' + this.formFInfo.provinceId + '&ftype=1&fname=' + this.formFInfo.city,
+        name: '/tokens/regionSelect?pid=' + (type === 0 ? this.formFInfo.cityId : this.formSInfo.cityId) + '&ftype=1&fname=' + (type === 0 ? this.formFInfo.city : this.formSInfo.city),
         method: 'GET'
       }).then(res => {
         if (res.data.respCode === '0') {
@@ -919,6 +1269,100 @@ export default {
       }).catch((res) => {
         console.log(res)
       })
+    },
+    // 添加货物信息
+    toChooseGoods () {
+      this.goodsDialogVisible = true
+    },
+    remoteMethod (query) {
+      if (query !== '') {
+        this.searchLoading = true
+        this.send({
+          name: '/typeController/getTypeName?fname=' + query,
+          method: 'GET'
+        }).then(res => {
+          if (res.data.respCode === '0') {
+            this.goodsNameoptions = res.data.data
+            this.searchLoading = false
+          } else {
+            this.$message({
+              message: res.data.message + '！',
+              type: 'error'
+            })
+            this.searchLoading = false
+          }
+        }).catch((res) => {
+          console.log(res)
+        })
+      } else {
+        this.goodsNameoptions = []
+      }
+    },
+    chooseGoodsName (value) {
+      if (this.choosedGoods.indexOf(value) === -1) {
+        this.choosedGoods.push(value)
+      } else {
+        this.$message({
+          message: '已选择该货物，不可重复选择！',
+          type: 'warning'
+        })
+      }
+    },
+    search () {
+    },
+    toChooseFee () {
+      this.feeDialogVisible = true
+    },
+    sureFee () {
+      if (!this.formFee.price) {
+        this.$message({
+          message: '运费不能为空！',
+          type: 'warning'
+        })
+        return false
+      }
+      if (this.formFee.price < this.formFee.oil) {
+        this.$message({
+          message: '油卡费用不能大于运费！',
+          type: 'warning'
+        })
+        return false
+      }
+      this.feeDialogVisible = false
+      if (!this.formFee.oil) {
+        this.feeString = '期望运费：' + this.formFee.price + '元'
+      } else {
+        this.feeString = '期望运费：' + this.formFee.price + '元 / 其中油卡：' + this.formFee.price + '元'
+      }
+    },
+    toChooseService () {
+      this.getService()
+      this.serviceDialogVisible = true
+    },
+    // 获取服务需求
+    getService () {
+      this.send({
+        name: '/typeController/tstype/2c90b4576e634e80016e637fb54a0003',
+        method: 'GET'
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.serviceOptions = res.data.data
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    sureService () {
+      this.serviceString = ''
+      this.services.map(item => {
+        this.serviceString += ' | ' + item
+      })
+      this.serviceDialogVisible = false
     }
   }
 }

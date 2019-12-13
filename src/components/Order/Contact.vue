@@ -20,9 +20,10 @@
       </el-table-column>
       <el-table-column label="设置为">
         <template slot-scope="scope">
-          <el-button type="text" size="mini" @click="setRole(0, scope.row)">发货人</el-button>
-          <el-button type="text" size="mini" @click="setRole(1, scope.row)">提货人</el-button>
-          <el-button type="text" size="mini" @click="setRole(2, scope.row)">发货人且提货人</el-button>
+          <el-button v-if="contractType == 0" type="text" size="mini" @click="setRole(0, scope.row)">发货人</el-button>
+          <el-button v-if="contractType == 0" type="text" size="mini" @click="setRole(1, scope.row)">提货人</el-button>
+          <el-button v-if="contractType == 0" type="text" size="mini" @click="setRole(2, scope.row)">发货人且提货人</el-button>
+          <el-button v-if="contractType == 1" type="text" size="mini" @click="setRole(3, scope.row)">收货人</el-button>
         </template>
       </el-table-column>
     </el-table>
