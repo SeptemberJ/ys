@@ -34,8 +34,8 @@ export default {
   data () {
     return {
       btLoading: false,
-      phone: '15190937955', // 15190937955 15722500690
-      password: '111111'
+      phone: '', // 15190937955 15722500690
+      password: '' // 111111
     }
   },
   created () {
@@ -51,6 +51,7 @@ export default {
       'changeUserTicketInfo',
       'updatePartyB',
       'changeUserCode',
+      'changeMainUserCode',
       'changeUserCheckStatus',
       'changeUserBalance',
       'changeUserFdepsta',
@@ -100,7 +101,7 @@ export default {
         data: {
         }
       }).then(res => {
-        console.log(res.data)
+        // console.log(res.data)
         let userInfo = res.data.data
         switch (res.data.respCode) {
           case '0':
@@ -108,6 +109,7 @@ export default {
             this.changeUserCheckStatus(userInfo.zRegister.checkStatus)
             this.changeUserId(userInfo.zRegister.id)
             this.changeUserCode(userInfo.zRegister.usercode)
+            this.changeMainUserCode(userInfo.zRegister.mainUsercode)
             this.changeUserFmobile(userInfo.zRegister.fmobile)
             this.changeUserFrate(userInfo.zRegister.frate ? userInfo.zRegister.frate : 0)
             this.changeLocationIdx(2)

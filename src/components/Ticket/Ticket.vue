@@ -265,11 +265,12 @@ export default {
       })
     },
     toAddTicket () {
-      if (!this.userTicketInfo) {
-        this.ifNeedTicketInfo = true
-      } else {
-        this.ifAdd = !this.ifAdd
-      }
+      this.ifAdd = !this.ifAdd
+      // if (!this.userTicketInfo) {
+      //   this.ifNeedTicketInfo = true
+      // } else {
+      //   this.ifAdd = !this.ifAdd
+      // }
     },
     cancelTicket (idx, row) {
       if (this.checkStatus === '2') {

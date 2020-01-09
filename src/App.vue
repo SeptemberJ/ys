@@ -10,6 +10,10 @@ import { mapState, mapActions } from 'vuex'
 import Header from './components/Header.vue'
 export default {
   name: 'App',
+  data () {
+    return {
+    }
+  },
   components: {
     Header
   },

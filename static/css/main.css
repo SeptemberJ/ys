@@ -81,7 +81,7 @@ form{
 .el-table td, .el-table th.is-leaf{}
 /*from*/
 .searchForm .el-form-item{
-  margin-bottom: 0px !important;
+  margin-bottom: 2px !important;
 }
 
 /*public*/
@@ -197,6 +197,7 @@ form{
   color: red;
 }
 
+
 /*map*/
 html, body, #mapBox {
   height: 100%;
@@ -235,5 +236,13 @@ html, body, #mapBox {
   padding-top: 0 !important;
 }
 .PersonInfoForm .el-form-item--mini.el-form-item, .PersonInfoForm .el-form-item--small.el-form-item{
-  margin-bottom: 10px !important;
+  margin-bottom: 15px !important;
+}
+.SDirectoryBlock .el-table td{
+  border-bottom: 0 !important;
+}
+.requiredLbel .el-form-item__label:before{
+  content: '*';
+  color: #F56C6C;
+  margin-right: 4px;
 }

@@ -1,513 +1,611 @@
 <template>
   <div class="OrderDetail">
-    <el-row>
-      <el-form ref="formAdd" :model="formAdd" :rules="AddRules" label-width="110px" label-position="left">
-        <!-- 发货人信息 -->
-        <el-card class="box-card">
-          <div slot="header" class="clearfix TextAlignL">
-            <span>发货人信息</span>
+    <section v-if="step == 1">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix TextAlignL">
+          <span class="columnTit">{{curPersonInfoIdx}}发货人信息{{curTimeIdx}}</span>
+          <img class="CursorPointer" style="width: 20px; height: 20px;float: right;" src="../../../static\images\icon\addAddr.png" fit="cover" @click="addOneFInfo"/>
+        </div>
+        <div class="InfoList" v-for="(FaItem, FIdx) in fInfo" :key="FIdx">
+          <div v-if="FIdx != 0" style="width: 100%;height: 20px;">
+            <img class="CursorPointer" style="width: 20px; height: 20px;display:block;float: right;" src="../../../static\images\icon\moveAddr.png" fit="cover" @click="moveOneFInfo(FIdx)"/>
           </div>
-          <div>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item prop="fhName" label="发货人">
-                  <el-input v-model="formAdd.fhName" clearable placeholder="请输入发货人姓名" :disabled="formAdd.fstatus != 0"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="11" :offset="1">
-                <el-form-item prop="fhTelephone" label="手机号">
-                  <el-input v-model="formAdd.fhTelephone" clearable placeholder="请输入发货人手机" :disabled="formAdd.fstatus != 0"></el-input>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="7" :offset="0">
-                <el-form-item prop="fprovince" label="发货省">
-                  <el-select v-model="formAdd.fprovince" placeholder="请选择" @change="changeFprovince" :disabled="formAdd.fstatus != 0">
-                    <el-option
-                      v-for="(fprovince, idx) in fprovinceList"
-                      :key="idx"
-                      :label="fprovince.fname"
-                      :value="fprovince.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="7" :offset="1">
-                <el-form-item prop="fcity" label="发货市">
-                  <el-select v-model="formAdd.fcity" placeholder="请选择" @change="changeFcity" :disabled="formAdd.fstatus != 0">
-                    <el-option
-                      v-for="(fcity, idx) in fcityList"
-                      :key="idx"
-                      :label="fcity.fname"
-                      :value="fcity.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="7" :offset="1">
-                <el-form-item prop="farea" label="发货区">
-                  <el-select v-model="formAdd.farea" placeholder="请选择" @change="changeFarea" :disabled="formAdd.fstatus != 0">
-                    <el-option
-                      v-for="(farea, idx) in fareaList"
-                      :key="idx"
-                      :label="farea.fname"
-                      :value="farea.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-form-item prop="fhAddress" label="街道">
-              <el-input v-model="formAdd.fhAddress" clearable placeholder="请输入发货地街道信息" :disabled="formAdd.fstatus != 0"></el-input>
-            </el-form-item>
+          <div class="faBlocksAddr">
+            <el-badge :value="fInfo.length > 1 ? FIdx + 1 : ''" class="item" style="float: left;">
+              <img class="LeftIcon" src="../../../static\images\icon\fa.png" fit="cover"/>
+            </el-badge>
+            <div class="MiddleAddr CursorPointer" @click="changePersonInfo(0, FIdx, FaItem)">
+              <p><span style="margin-right: 20px;">{{FaItem.fperson}}</span><span>{{FaItem.fphone}}</span></p>
+              <p>{{FaItem.province}}{{FaItem.city}}{{FaItem.area}} {{FaItem.addr}}</p>
+            </div>
+            <img class="RightArrow CursorPointer" src="../../../static\images\icon\right-arrow.png" @click="changePersonInfo(0, FIdx, FaItem)" fit="cover"/>
           </div>
-        </el-card>
-        <!-- 收货人信息 -->
-        <el-card class="box-card MarginTB_20">
-          <div slot="header" class="clearfix TextAlignL">
-            <span>收货人信息</span>
+          <el-divider></el-divider>
+          <div class="faBlocksTime CursorPointer" @click="toChooseTime('发货', FIdx)">
+            <span>装货时间</span>
+            <div class="TimeBlock">{{FaItem.date}} {{FaItem.stage}} {{FaItem.time}}</div>
+            <img class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"/>
           </div>
-          <div>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item prop="shName" label="收货人">
-                  <el-input v-model="formAdd.shName" clearable placeholder="请输入收货人姓名" :disabled="formAdd.fstatus != 0"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="11" :offset="1">
-                <el-form-item prop="shTelephone" label="手机号">
-                  <el-input v-model="formAdd.shTelephone" clearable placeholder="请输入收货人手机" :disabled="formAdd.fstatus != 0"></el-input>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="7" :offset="0">
-                <el-form-item prop="sprovince" label="收货省">
-                  <el-select v-model="formAdd.sprovince" placeholder="请选择" @change="changeSprovince" :disabled="formAdd.fstatus != 0">
-                    <el-option
-                      v-for="(sprovince, idx) in sprovinceList"
-                      :key="idx"
-                      :label="sprovince.fname"
-                      :value="sprovince.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="7" :offset="1">
-                <el-form-item prop="scity" label="收货市">
-                  <el-select v-model="formAdd.scity" placeholder="请选择" @change="changeScity" :disabled="formAdd.fstatus != 0">
-                    <el-option
-                      v-for="(scity, idx) in scityList"
-                      :key="idx"
-                      :label="scity.fname"
-                      :value="scity.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="7" :offset="1">
-                <el-form-item prop="sarea" label="收货区">
-                  <el-select v-model="formAdd.sarea" placeholder="请选择" @change="changeSarea" :disabled="formAdd.fstatus != 0">
-                    <el-option
-                      v-for="(sarea, idx) in sareaList"
-                      :key="idx"
-                      :label="sarea.fname"
-                      :value="sarea.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-form-item prop="shAddress" label="街道">
-              <el-input v-model="formAdd.shAddress" clearable placeholder="请输入收货地街道信息" :disabled="formAdd.fstatus != 0"></el-input>
-            </el-form-item>
+        </div>
+      </el-card>
+      <!-- 收货人信息 -->
+      <el-card class="box-card MarginT_20">
+        <div slot="header" class="clearfix TextAlignL">
+          <span class="columnTit">收货人信息</span>
+          <img class="CursorPointer" style="width: 20px; height: 20px;float: right;" src="../../../static\images\icon\addAddr.png" fit="cover" @click="addOneSInfo"/>
+        </div>
+        <div class="InfoList" v-for="(SItem, SIdx) in sInfo" :key="SIdx">
+          <div v-if="SIdx != 0" style="width: 100%;height: 20px;">
+            <img class="CursorPointer" style="width: 20px; height: 20px;display:block;float: right;" src="../../../static\images\icon\moveAddr.png" fit="cover" @click="moveOneSInfo(SIdx)"/>
           </div>
-        </el-card>
-        <!-- 货物信息 -->
-        <el-card class="box-card MarginTB_20">
-          <div slot="header" class="clearfix TextAlignL">
-            <span>货物信息</span>
+          <div class="faBlocksAddr">
+            <el-badge :value="sInfo.length > 1 ? SIdx + 1 : ''" class="item" style="float: left;">
+              <img class="LeftIcon" src="../../../static\images\icon\shou.png" fit="cover"/>
+            </el-badge>
+            <div class="MiddleAddr CursorPointer" @click="changePersonInfo(1, SIdx, SItem)">
+              <p><span style="margin-right: 20px;">{{SItem.sperson}}</span><span>{{SItem.sphone}}</span></p>
+              <p>{{SItem.province}}{{SItem.city}}{{SItem.area}} {{SItem.addr}}</p>
+            </div>
+            <img class="RightArrow CursorPointer" src="../../../static\images\icon\right-arrow.png" @click="changePersonInfo(1, SIdx, SItem)" fit="cover"/>
           </div>
-          <div>
-            <p v-if="formAdd.orderGoodsList.length == 0" class="ColorWarn MarginTB_20">请添加货物信息</p>
-            <el-row v-for="(Goods, idx) in formAdd.orderGoodsList" :key="idx">
-              <el-col :span="8">
-                <el-form-item :prop="'orderGoodsList.' + idx + '.goodsName'" :rules="AddRules.goodsName" label="货物名称">
-                  <el-input v-model="Goods.goodsName" clearable placeholder="" :disabled="formAdd.fstatus != 0"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6" :offset="1">
-                <el-form-item :prop="'orderGoodsList.' + idx + '.goodsSpace'" :rules="AddRules.goodsSpace" type="number" label="货物面积(㎡)">
-                  <el-input v-model="Goods.goodsSpace" clearable placeholder="" :disabled="formAdd.fstatus != 0"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6" :offset="1">
-                <el-form-item :prop="'orderGoodsList.' + idx + '.goodsWeight'" :rules="AddRules.goodsWeight" type="number" label="货物数量(kg)">
-                  <el-input v-model="Goods.goodsWeight" clearable placeholder="" :disabled="formAdd.fstatus != 0"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="2" :offset="0">
-                <el-button icon="el-icon-delete" style="border: 0px;" @click="deleteOneLine(idx)" :disabled="formAdd.fstatus != 0"></el-button>
-              </el-col>
-            </el-row>
-            <el-button icon="el-icon-plus" class="MarginT_20" style="width: 100%;border:1px dashed #dcdfe6" @click="addOneLine" :disabled="formAdd.fstatus != 0">添加</el-button>
+          <el-divider></el-divider>
+          <div class="faBlocksTime CursorPointer" @click="toChooseTime('收货', SIdx)">
+            <span>卸货时间</span>
+            <div class="TimeBlock">{{SItem.date}} {{SItem.stage}} {{SItem.time}}</div>
+            <img class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"/>
           </div>
-        </el-card>
-        <!-- 其它信息 -->
-        <el-card class="box-card MarginTB_20">
-          <div slot="header" class="clearfix TextAlignL">
-            <span>其它信息</span>
+        </div>
+      </el-card>
+      <!-- 其他信息 -->
+      <el-card class="box-card MarginT_20">
+        <div slot="header" class="clearfix TextAlignL">
+          <span class="columnTit">其他信息</span>
+        </div>
+        <div class="InfoList">
+          <div class="otherInfoBlocks CursorPointer" @click="toChooseCarType">
+            <span>车型车长</span>
+            <div class="MiddleAddr">
+              <p v-if="carLongString">{{carKind}} 车型：{{carTypeString}}</p>
+              <p v-if="carLongString">车长：{{carLongString}}</p>
+            </div>
+            <img class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"/>
           </div>
-          <div>
-            <el-form-item prop="goodsName" label="货物类型">
-              <el-select v-model="formAdd.goodsName" placeholder="请选择" style="width: 100%;" @change="changeGoodsType" :disabled="formAdd.fstatus != 0">
-                <el-option
-                  v-for="(goodsType, idx) in goodsTypeList"
-                  :key="idx"
-                  :label="goodsType.name"
-                  :value="goodsType.id">
-                </el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item prop="carType" label="车型">
-              <el-select v-model="formAdd.carType" placeholder="请选择" style="width: 100%" @change="changeCarType" :disabled="formAdd.fstatus != 0">
-                <el-option
-                  v-for="(carType, idx) in carTypeList"
-                  :key="idx"
-                  :label="carType.typeName"
-                  :value="carType.typename">
-                </el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item prop="carLength" label="车长">
-            <el-select v-model="formAdd.carLength" placeholder="请选择" style="width: 100%">
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer" @click="toWeightVolume">
+            <span>重量体积</span>
+            <div class="MiddleAddr">{{weightVolumeString}}</div>
+            <img class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"/>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer">
+            <span>装卸次数</span>
+            <div class="MiddleAddr">1装1卸</div>
+            <img class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"/>
+          </div>
+        </div>
+      </el-card>
+      <!-- next step -->
+      <el-button class="MarginT_20" type="primary" @click="toNextStep">下一步<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+    </section>
+    <section v-if="step == 2">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix TextAlignL">
+          <span class="columnTit">货物信息</span>
+        </div>
+        <div class="InfoList">
+          <div class="faBlocksAddr">
+            <img class="LeftIcon" src="../../../static\images\icon\huo.png" fit="cover"/>
+            <div class="MiddleAddr CursorPointer" @click="toChooseGoods">
+              <p style="line-height: 50px;"><el-tag class="MarginL_10" v-for="Goods in choosedGoodsList" :key="Goods">{{Goods}}</el-tag></p>
+            </div>
+            <img class="RightArrow CursorPointer" src="../../../static\images\icon\right-arrow.png" @click="toChooseGoods" fit="cover"/>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer" @click="toChooseService">
+            <span>需求备注</span>
+            <div class="MiddleAddr">
+              <p>{{serviceString.substring(2)}}</p>
+              <p>{{note}}</p>
+            </div>
+            <img class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"/>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer">
+            <span>指派车主</span>
+            <div class="MiddleAddr"></div>
+            <img class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"/>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer" @click="toChooseFee">
+            <span>期望运费</span>
+            <div class="MiddleAddr">{{feeString}}</div>
+            <img class="RightArrow" src="../../../static\images\icon\right-arrow.png" fit="cover"/>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer">
+            <span>购买运货险</span> <span style="padding-left:10px;">(满30减5元)</span>
+            <el-switch v-model="insurance" style="float:right;margin-top:18px;"></el-switch>
+          </div>
+          <el-divider></el-divider>
+          <div class="otherInfoBlocks CursorPointer">
+            <span>存为常发货源</span>
+            <el-switch v-model="saveOften" style="float:right;margin-top:18px;"></el-switch>
+          </div>
+        </div>
+      </el-card>
+      <el-button class="MarginT_20" type="primary" @click="toPreStep">上一步</el-button>
+      <!-- <el-button class="MarginT_20" type="primary" @click="sureAddOrder" :loading="subLoading">确认发货</el-button> -->
+    </section>
+    <!-- 选择弹窗 -->
+    <!-- 发货人/收货人信息 -->
+    <el-dialog class="PersonInfoForm" :title="curPersonInfoType == 0 ? '添加发货人信息' : '添加收货人信息'" :visible.sync="contractInfoDialogVisible" width="520px" center :close-on-click-modal="false">
+      <!-- 发货人信息 -->
+      <div class="MainBox" v-if="curPersonInfoType == 0">
+        <el-form ref="formFInfo" :model="formFInfo" label-width="140px" label-position="left" size="small">
+          <el-form-item label="请选择城市/区域" class="requiredLbel" size="small">
+            <el-select v-model="formFInfo.province" placeholder="请选择" style="width: 100px;" @change="changeProvince">
               <el-option
-                v-for="(carLength, idx) in carLengthList"
-                :key="idx"
-                :label="carLength.typename"
-                :value="carLength.typename">
+                v-for="item in ProvinceOptions"
+                :key="item.id"
+                :label="item.fname"
+                :value="item.id">
+              </el-option>
+            </el-select>
+            <el-select v-model="formFInfo.city" placeholder="请选择" style="width: 100px;" @change="changeCity">
+              <el-option
+                v-for="item in CityOptions"
+                :key="item.sareacode"
+                :label="item.sareaname"
+                :value="item.sareacode">
+              </el-option>
+            </el-select>
+            <el-select v-model="formFInfo.area" placeholder="请选择" style="width: 100px;" @change="changeArea">
+              <el-option
+                v-for="item in AreaOptions"
+                :key="item.id"
+                :label="item.fareaname"
+                :value="item.fareacode">
               </el-option>
             </el-select>
           </el-form-item>
-          <!-- time -->
-            <el-row>
-              <el-col :span="12" :offset="0">
-                <el-form-item prop="zhTime" label="装货日期">
-                  <el-date-picker  type="date" :picker-options="pickerOptionsStart" placeholder="选择装货日期" v-model="formAdd.zhTime" value-format="yyyy-MM-dd" style="width: 100%;">
-                  </el-date-picker>
-                </el-form-item>
-              </el-col>
-              <el-col :span="11" :offset="1">
-                <el-form-item prop="zhperiod" label="装货时间">
-                  <el-select v-model="formAdd.zhperiod" placeholder="请选择" style="width: 100%;" @change="changeCarType">
-                    <el-option
-                      v-for="(timeType, idx) in timeTypeList"
-                      :key="idx"
-                      :label="timeType.typename"
-                      :value="timeType.typename">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-row>
-              <el-col :span="12" :offset="0">
-                <el-form-item prop="xhTime" label="卸货日期">
-                  <el-date-picker  type="date" :picker-options="pickerOptionsStart" placeholder="选择卸货日期" v-model="formAdd.xhTime" value-format="yyyy-MM-dd" style="width: 100%;float:left;">
-                  </el-date-picker>
-                </el-form-item>
-              </el-col>
-              <el-col :span="11" :offset="1">
-                <el-form-item prop="xhperiod" label="卸货时间">
-                  <el-select v-model="formAdd.xhperiod" placeholder="请选择" style="width: 100%;" @change="changeCarType">
-                    <el-option
-                      v-for="(timeType, idx) in timeTypeList"
-                      :key="idx"
-                      :label="timeType.typename"
-                      :value="timeType.typename">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-form-item prop="appointId" label="指派人员" class="TextAlignL">
-              <span class="MarginR_10" v-if="appointName">{{appointName}}</span>
-              <!-- <el-button type="text" size="small" @click="chooseSJ">去选择<i class="el-icon-d-arrow-right el-icon--right"></i></el-button> -->
-            </el-form-item>
-            <!-- <el-form-item label="开具发票" prop="isFapiao">
-              <el-radio-group v-model="formAdd.isFapiao" style="float: left">
-                <el-radio label="0" border :disabled="formAdd.fstatus != 0">不需要</el-radio>
-                <el-radio label="1" border :disabled="formAdd.fstatus != 0">需要</el-radio>
-              </el-radio-group>
-            </el-form-item> -->
-            <el-form-item label="结算方式" prop="payWay">
-              <el-radio-group v-model="formAdd.payWay" style="float: left">
-                <el-radio :label="0" border :disabled="formAdd.fstatus != 0">现结</el-radio>
-                <el-radio :label="1" border :disabled="formAdd.fstatus != 0">月结</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="接受拼箱" prop="isBox">
-              <el-radio-group v-model="formAdd.isBox" style="float: left">
-                <el-radio label="1" border disabled>不接受</el-radio>
-                <el-radio label="0" border disabled>接受</el-radio>
-              </el-radio-group>
-            </el-form-item>
+          <el-form-item label="装货详细地址" class="requiredLbel" size="small">
+            <el-input v-model="formFInfo.addr"></el-input>
+          </el-form-item>
+          <el-form-item label="发货人" class="requiredLbel" size="small">
+            <el-input v-model="formFInfo.fperson" style="width: 85%"></el-input>
+            <i class="iconfont-icons ifc-iconcontacts CursorPointer" @click="chooseContact(0)" style="color:#66b1ff;font-size:30px;float:right;"></i>
+          </el-form-item>
+          <el-form-item label="发货人电话" class="requiredLbel" size="small">
+            <el-input v-model="formFInfo.fphone"></el-input>
+          </el-form-item>
+          <el-divider></el-divider>
+          <el-form-item label="发货人和提货人相同" size="small">
+            <el-switch v-model="formFInfo.ifSame" @change="sameSwitch" style="float:right;margin-top:6px;"></el-switch>
+          </el-form-item>
+          <el-form-item label="提货人" class="requiredLbel" size="small">
+            <el-input v-model="formFInfo.tperson" style="width: 85%"></el-input>
+            <i class="iconfont-icons ifc-iconcontacts CursorPointer" @click="chooseContact(0)" style="color:#66b1ff;font-size:30px;float:right;"></i>
+          </el-form-item>
+          <el-form-item label="提货人电话" class="requiredLbel" size="small">
+            <el-input v-model="formFInfo.tphone"></el-input>
+          </el-form-item>
+          <el-form-item label="保存为常用发货人" size="small">
+            <el-switch v-model="formFInfo.ifSavePerson" style="float:right;margin-top:6px;"></el-switch>
+          </el-form-item>
+        </el-form>
+        <el-dialog
+          width="650px"
+          title="联系人"
+          :visible.sync="contactListDialogVisible"
+          append-to-body>
+          <Contacts v-if="curPersonInfoType == 0 && contactListDialogVisible" ref="ContactsChild" :contractType="contractType" @backContractInfo="backContractInfo"/>
+        </el-dialog>
+      </div>
+      <!-- 收货人信息 -->
+      <div class="MainBox" v-if="curPersonInfoType == 1">
+        <el-form ref="formSInfo" :model="formSInfo" label-width="140px" label-position="left" size="small">
+          <el-form-item label="请选择城市/区域" class="requiredLbel" size="small">
+            <el-select v-model="formSInfo.province" placeholder="请选择" style="width: 100px;" @change="changeProvince">
+              <el-option
+                v-for="item in ProvinceOptions"
+                :key="item.id"
+                :label="item.fname"
+                :value="item.id">
+              </el-option>
+            </el-select>
+            <el-select v-model="formSInfo.city" placeholder="请选择" style="width: 100px;" @change="changeCity">
+              <el-option
+                v-for="item in CityOptions"
+                :key="item.sareacode"
+                :label="item.sareaname"
+                :value="item.sareacode">
+              </el-option>
+            </el-select>
+            <el-select v-model="formSInfo.area" placeholder="请选择" style="width: 100px;" @change="changeArea">
+              <el-option
+                v-for="item in AreaOptions"
+                :key="item.id"
+                :label="item.fareaname"
+                :value="item.fareacode">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="收货详细地址" class="requiredLbel" size="small">
+            <el-input v-model="formSInfo.addr"></el-input>
+          </el-form-item>
+          <el-form-item label="收货人" class="requiredLbel" size="small">
+            <el-input v-model="formSInfo.sperson" style="width: 85%"></el-input>
+            <i class="iconfont-icons ifc-iconcontacts CursorPointer" @click="chooseContact(1)" style="color:#66b1ff;font-size:30px;float:right;"></i>
+          </el-form-item>
+          <el-form-item label="收货人电话" class="requiredLbel" size="small">
+            <el-input v-model="formSInfo.sphone"></el-input>
+          </el-form-item>
+          <el-form-item label="固定电话" size="small">
+            <el-input v-model="formSInfo.stell"></el-input>
+          </el-form-item>
+          <el-form-item label="保存为常用发货人" size="small">
+            <el-switch v-model="formSInfo.ifSavePerson" style="float:right;margin-top:6px;"></el-switch>
+          </el-form-item>
+        </el-form>
+        <el-dialog
+          width="650px"
+          title="联系人"
+          :visible.sync="contactListDialogVisible"
+          append-to-body>
+          <Contacts v-if="curPersonInfoType == 1 && contactListDialogVisible" ref="ContactsChild" :contractType="contractType" @backContractInfo="backContractInfo"/>
+        </el-dialog>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="contractInfoDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sureAddFPerson">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 时间 -->
+    <el-dialog title="选择时间" :visible.sync="dateTimeDialogVisible" width="450px" center :close-on-click-modal="false">
+      <div>
+        <el-form :model="formDateTime" :rules="ruleDateTime" ref="formDateTime" :validate-on-rule-change="false" label-position="left" label-width="100px" class="demo-ruleForm">
+          <el-form-item label="日期" prop="date">
+            <el-date-picker style="width: 100%;"
+             v-model="formDateTime.date"
+             type="date"
+             placeholder="选择日期"
+             value-format="yyyy-MM-dd"
+             :picker-options="startDateDisabled">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="时间段" prop="stage">
+            <el-select v-model="formDateTime.stage" placeholder="请选择" style="width: 100%;">
+              <el-option
+                v-for="item in stageOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="具体时间" prop="time">
+            <el-select v-model="formDateTime.time" placeholder="请选择" style="width: 100%;">
+              <el-option
+                v-for="item in timeOptions"
+                :key="item"
+                :label="item"
+                :value="item">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dateTimeDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="choosedTime('formDateTime')">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 车型车长 -->
+    <el-dialog class="NoTopPadding" title="选择车长车型" :visible.sync="carTypeDialogVisible" width="485px" center :close-on-click-modal="false">
+      <div class="MainBox">
+        <!-- 用车类型 -->
+        <p class="MarginB_20">用车类型</p>
+        <div>
+          <el-radio-group v-model="carKind" size="small">
+            <el-radio label="整车" border>整车</el-radio>
+            <el-radio label="可拼车" border>可拼车</el-radio>
+          </el-radio-group>
+        </div>
+        <!-- 车长-->
+        <p class="MarginTB_20">车长(必填，最多选择3项)</p>
+        <div>
+          <el-checkbox-group v-model="carLong" :max="3" size="small" style="text-align:left;">
+            <el-checkbox v-for="(CarLong, LongIdx) in carLongOptions" :key="LongIdx" :label="CarLong.carLength" @change="(value) => showTips(value, CarLong)" border style="width:130px;">{{CarLong.carLength}}</el-checkbox>
+          </el-checkbox-group>
+        </div>
+        <!-- 车型 -->
+        <p class="MarginTB_20">车型(必填，最多选择3项)</p>
+        <div>
+          <el-checkbox-group v-model="carType" :max="3" size="small" style="text-align:left;">
+            <el-checkbox v-for="(CarType, TypeIdx) in carTypeOptions" :key="TypeIdx" :label="CarType.typename" @change="(value) => changeCarType(value, CarType)" border style="width:130px;">{{CarType.typename}}</el-checkbox>
+          </el-checkbox-group>
+        </div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="carTypeDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sureChoosedCar">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 重量体积 -->
+    <el-dialog title="重量体积(必填一项)" :visible.sync="weightVolumeDialogVisible" width="485px" center :close-on-click-modal="false">
+      <div class="MainBox">
+        <el-form ref="formWeightVolume" :model="formWeightVolume" label-width="70px" label-position="left">
+          <el-form-item label="重量">
+            <el-input v-model="formWeightVolume.weightS" type="number" placeholder="0~999" @change="(value) => checkValue(value, 'weightS')" @input="(value) => checkValue(value, 'weightS')" style="width:140px"></el-input>
+            <span style="padding: 0 10px;">——</span>
+            <el-input v-model="formWeightVolume.weightE" type="number" placeholder="0~999" @change="(value) => checkValue(value, 'weightE')" @input="(value) => checkValue(value, 'weightE')" style="width:140px"></el-input>&nbsp;&nbsp;吨
+          </el-form-item>
+          <el-form-item label="体积">
+            <el-input v-model="formWeightVolume.volumeS" type="number" placeholder="0~999" @change="(value) => checkValue(value, 'volumeS')" @input="(value) => checkValue(value, 'volumeS')" style="width:140px"></el-input>
+            <span style="padding: 0 10px;">——</span>
+            <el-input v-model="formWeightVolume.volumeE" type="number" placeholder="0~999" @change="(value) => checkValue(value, 'volumeE')" @input="(value) => checkValue(value, 'volumeE')" style="width:140px"></el-input>&nbsp;&nbsp;方
+          </el-form-item>
+        </el-form>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="weightVolumeDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sureWeightVolume">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 货物名称 -->
+    <el-dialog title="货物类型" :visible.sync="goodsDialogVisible" width="485px" center :close-on-click-modal="false">
+      <div class="MainBox">
+        <el-select style="width: 100%;"
+          v-model="goodsKeyWord"
+          filterable
+          remote
+          reserve-keyword
+          placeholder="请输入您想要的货物"
+          @change="chooseGoodsName($event, 0)"
+          :remote-method="remoteMethod"
+          :loading="searchLoading">
+          <el-option
+            v-for="(item, idx) in goodsNameoptions"
+            :key="idx"
+            :label="item.fname"
+            :value="item.fname">
+            <span style="float: left">{{ item.fname }}</span>
+            <span style="float: right; color: #8492a6; font-size: 13px">{{ item.fname1 }}</span>
+          </el-option>
+        </el-select>
+        <div class="ChoosedGoods MarginTB_20">
+          <div class="GoodsNameLabel" v-for="(item, idx) in choosedGoods.nameList" :key="idx">
+            <span>{{item}}</span>
+            <span class="closeBlock" @click="removeGoods(idx)">x</span>
           </div>
-        </el-card>
-        <!-- 费用 -->
-        <el-card class="box-card MarginTB_20">
-          <div slot="header" class="clearfix TextAlignL">
-            <span>费用</span>
-          </div>
-          <div class="TextAlignL">
-            <!-- 支付方式
-            <el-form-item label="支付方式" prop="isFapiao">
-              <el-row class="TextAlignR">
-                <el-col :span="1" :offset="18"><el-radio v-model="formAdd.payType" :label="0" disabled><span style="color:#fff">0</span></el-radio></el-col>
-                <el-col :span="1"><img src="../../../static/images/icon/zfb.png" style="width: 35px;margin-top:5px;"></el-col>
-                <el-col :span="1" :offset="2"><el-radio v-model="formAdd.payType" :label="1" disabled><span style="color:#fff">1</span></el-radio></el-col>
-                <el-col :span="1"><img src="../../../static/images/icon/wx.png" style="width: 35px;margin-top:5px;"></el-col>
-              </el-row>
-            </el-form-item> -->
-            <el-form-item prop="oilCard" label="是否使用油卡">
-              <span style="color: red">(油卡部分的金额无法开票)</span>
-              <el-input v-model="formAdd.oilCard" clearable v-if="formAdd.ifUseOilCard == 1" style="width: 200px;float:right;margin-left:20px;">
-                <template slot="append">¥</template>
-              </el-input>
-              <el-radio-group v-model="formAdd.ifUseOilCard" style="float: right">
-                <el-radio :label="0" border :disabled="formAdd.fstatus != 0">不使用</el-radio>
-                <el-radio :label="1" border :disabled="formAdd.fstatus != 0">使用</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item prop="ffee" :label="formAdd.fstatus == 0 ? '报价' : '确认报价'">
-              <el-input v-model="formAdd.ffee" clearable placeholder="请输入您的报价" :disabled="formAdd.fstatus != 0">
-                <template slot="append">¥</template>
-              </el-input>
-            </el-form-item>
-            <!-- 原本显示最高限价
-            <el-form-item label="">
-              <span style="float:right;margin-left: 10px;color: red">（最高限价 {{formAdd.fmaxFee}}¥）</span>
-            </el-form-item> -->
-           <!-- 原本按距离计算合计
-           <h4 class="ColorWarn"><span style="display:inline-block;width:50%">合计：</span><span style="display:inline-block;width:50%;text-align:right">{{totalSum}} ¥</span></h4>
-            <p style="font-size: 12px;color: #909399;text-align:right">{{cityDistance}} (路程/km) * {{totalWeight/1000}} (重量/t) * {{unitPrice}} (单价/¥) = {{totalSum}} ¥</p> -->
-          </div>
-        </el-card>
-        <!-- 回单信息 -->
-        <el-card class="box-card MarginTB_20">
-          <div slot="header" class="clearfix TextAlignL">
-            <span>回单信息</span>
-          </div>
-          <div class="TextAlignL">
-            <el-form-item prop="floadpics" label="装车照片">
-              <img v-if="formAdd.floadpics" :src="formAdd.floadpics" style="height:250px;">
-            </el-form-item>
-            <el-form-item prop="floadtime" label="装车时间">
-              <el-date-picker type="date"  v-model="formAdd.floadtime" style="width: 100%;" disabled></el-date-picker>
-            </el-form-item>
-            <el-form-item prop="frecepics" label="回单照片">
-              <img v-if="formAdd.frecepics" :src="formAdd.frecepics" style="height:250px;">
-            </el-form-item>
-            <el-form-item prop="frecetime" label="回单时间">
-              <el-date-picker type="date"  v-model="formAdd.frecetime" style="width: 100%;" disabled></el-date-picker>
-            </el-form-item>
-            <el-form-item prop="frecetime" label="回单确认">
-              <el-button type="primary" v-if="formAdd.frece == 1" disabled>已确认</el-button>
-              <el-button type="primary" v-else :disabled="!formAdd.frecepics" @click="huidanConfirm">确认</el-button>
-            </el-form-item>
-          </div>
-        </el-card>
-        <!-- operation bt -->
-        <el-row>
-          <el-col :span="12" class="TextAlignC" >
-            <el-button type="primary" :loading="ifLoading" @click="onSubmit('formAdd')" v-if="formAdd.fstatus == 0">保存修改</el-button>
-            <el-button type="primary" :loading="ifLoading" @click="payment" v-if="formAdd.frece == 1 && formAdd.fstatus != 7">确认支付</el-button>
-            <el-button type="primary" :loading="ifLoading" disabled v-if="formAdd.fstatus == 7">已结单</el-button>
-          </el-col>
-          <el-col :span="12" class="TextAlignC" style="float:right;">
-            <el-button @click="backOrderList" style="width: 100px;">返回</el-button>
-          </el-col>
-        </el-row>
-      </el-form>
-    </el-row>
+        </div>
+        <p class="MarginTB_20" style="border-left:10px solid #409EFF;padding-left:10px;"><span>热门货物类型</span><span style="float:right;cursor:pointer" @click="seeMore">查看更多></span></p>
+        <div>
+          <span v-for="(HotGoods, HotGoodsIdx) in hotGoodsOptions" :key="HotGoodsIdx" :class="[choosedGoods.nameList.indexOf(HotGoods.fname) != -1 ? 'choosedHotGoods HotGoods' : 'HotGoods']" @click="chooseHotGoods(HotGoods)">{{HotGoods.fname}}</span>
+        </div>
+        <!-- <el-checkbox-group v-model="carLong" :max="3" size="small" style="text-align:left;">
+          <span :class="[choosedGoods.nameList.indexOf(HotGoods.fname) != -1 ? 'choosedHotGoods HotGoods' : 'HotGoods']">HotGoods.fname</span>
+          <el-checkbox v-for="(HotGoods, HotGoodsIdx) in hotGoodsOptions" :key="HotGoodsIdx" :label="HotGoods.fname" :checked="choosedGoods.nameList.indexOf(HotGoods.fname) != -1" @change="(value) => chooseHotGoods(value, HotGoods)" border style="width:130px;">{{HotGoods.fname}}</el-checkbox>
+        </el-checkbox-group> -->
+      </div>
+      <el-dialog
+        width="650px"
+        title="货物名称"
+        :visible.sync="goodsListDialogVisible"
+        append-to-body>
+        <GoodsList v-if="goodsListDialogVisible" ref="GoodsListChild" :choosedGoods="choosedGoods" @closeGoodsList="closeGoodsList" @chooseGoodsName="chooseGoodsName"/>
+      </el-dialog>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="goodsDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sureGoods">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 期望运费 -->
+    <el-dialog title="期望运费" :visible.sync="feeDialogVisible" width="450px" center :close-on-click-modal="false">
+      <div class="MainBox">
+        <el-form ref="formFee" :model="formFee" label-width="80px" label-position="left">
+          <el-form-item label="期望运费" class="requiredLbel">
+            <el-input v-model="formFee.price" type="number" placeholder="请填写运费金额">
+              <template slot="append">元 / 趟</template>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="使用油卡">
+            <el-input v-model="formFee.oil" type="number" placeholder="请填写油卡金额，选填">
+              <template slot="append">元</template>
+            </el-input>
+          </el-form-item>
+        </el-form>
+        <p class="MarginTB_10" style="border-left:10px solid #409EFF;padding-left:10px;">使用油卡须知</p>
+        <p style="font-size:12px;">1. 油卡的使用金额不得大于运费金额</p>
+        <p style="font-size:12px;">2. 使用油卡的金额无法开票</p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="feeDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sureFee">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 需求备注 -->
+    <el-dialog title="需求备注" :visible.sync="serviceDialogVisible" width="450px" center :close-on-click-modal="false">
+      <div class="MainBox">
+        <el-input
+          type="textarea"
+          placeholder="请输入备注，最多50个字"
+          v-model="note"
+          maxlength="50"
+          show-word-limit>
+        </el-input>
+        <p class="MarginTB_20" style="border-left:10px solid #409EFF;padding-left:10px;">服务需求</p>
+        <el-checkbox-group v-model="services" size="small" style="text-align:left;">
+          <el-checkbox v-for="(Service, ServiceIdx) in serviceOptions" :key="ServiceIdx" :label="Service.typename" border style="width:115px;">{{Service.typename}}</el-checkbox>
+        </el-checkbox-group>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="serviceDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sureService">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex' // mapActions
+import { formatToString, objDeepCopy } from '../../util/utils'
+import Contacts from './Contact'
+import GoodsList from './GoodsList'
+
 export default {
-  name: 'AddOrder',
+  name: 'OrderDetail',
+  props: ['curOrderId'],
   data () {
-    var validatePhone = (rule, value, callback) => {
-      if (value.trim() === '') {
-        callback(new Error('请输入手机号！'))
-      } else if (!(/^1[34578]\d{9}$/.test(value))) {
-        callback(new Error('手机号格式不正确！'))
-      } else {
-        callback()
-      }
-    }
-    // var validateFee = (rule, value, callback) => {
-    //   if (value > this.formAdd.max_price) {
-    //     callback(new Error('超出了最高限价！'))
-    //   } else if (value === '' || value === 0) {
-    //     callback(new Error('请输入报价！'))
-    //   } else {
-    //     callback()
-    //   }
-    // }
     return {
-      ifLoading: false,
-      order_no: '', // 订单号
-      fprovinceList: [],
-      fcityList: [],
-      fareaList: [],
-      sprovinceList: [],
-      scityList: [],
-      sareaList: [],
-      fProvincePid: 100000,
-      fcityPid: '',
-      fareaPid: '',
-      sProvincePid: 100000,
-      scityPid: '',
-      sareaPid: '',
-      cityDistance: 0,
-      // unitPrice: 0,
-      // totalSum: 0,
-      appointName: '',
-      timeTypeList: [], // 时间段
-      formAdd: {
-        fprovince: '',
-        fcity: '',
-        farea: '',
-        sprovince: '',
-        scity: '',
-        sarea: '',
-        id: '',
-        fstatus: '',
-        fcheck: '',
-        fmainId: '', // 主账号code
-        fsubId: '', // 子账号code
-        fhName: '',
-        fhTelephone: '',
-        fh: '', // 发货地id
-        fhAddress: '',
-        shName: '',
-        shTelephone: '',
-        sh: '', // 收货地id
-        shArea: '',
-        shAddress: '',
-        carType: '',
-        carLength: '',
-        zhTime: '',
-        zhperiod: '',
-        xhTime: '',
-        xhperiod: '',
-        goodsName: '',
-        orderGoodsList: [],
-        goodsTypeList: [],
-        payWay: 0, // 0_现结 1_月结
-        isFapiao: '0', // 0_不要 1_要
-        isBox: '', // 0-要 1-不要
-        boxNo: '',
-        payType: '0', // 0_支付宝 1_微信
-        max_price: 0,
-        ifUseOilCard: 0, // 0_不使用 1_使用
-        oilCard: 0, // 油卡金额
-        fmaxFee: 0,
-        floadpics: '', // 装车照片
-        floadtime: '', // 装车时间
-        frecepics: '', // 回单照片
-        frecetime: '', // 回单时间
-        frece: '' // 回单确认
+      step: 1,
+      searchLoading: false,
+      subLoading: false,
+      dateTimeDialogVisible: false,
+      carTypeDialogVisible: false,
+      weightVolumeDialogVisible: false,
+      contractInfoDialogVisible: false,
+      contactListDialogVisible: false,
+      goodsDialogVisible: false,
+      goodsListDialogVisible: false,
+      feeDialogVisible: false,
+      serviceDialogVisible: false,
+      // 两个时间
+      formDateTime: {
+        date: '',
+        stage: '',
+        time: ''
       },
-      AddRules: {
-        fhName: [
-          { required: true, message: '请输入发货人！', trigger: 'change' }
-        ],
-        fhTelephone: [
-          { required: true, validator: validatePhone, trigger: 'change' }
-        ],
-        fhAddress: [
-          { required: true, message: '请输入发货人地址！', trigger: 'change' }
-        ],
-        shName: [
-          { required: true, message: '请输入收货人！', trigger: 'change' }
-        ],
-        shTelephone: [
-          { required: true, validator: validatePhone, trigger: 'change' }
-        ],
-        shArea: [
-          { required: true, message: '请输入收货地！', trigger: 'change' }
-        ],
-        shAddress: [
-          { required: true, message: '请输入收货人地址！', trigger: 'change' }
-        ],
-        carType: [
-          { required: true, message: '请选择车型！', trigger: 'change' }
-        ],
-        carLength: [
-          { required: true, message: '请选择车长！', trigger: 'change' }
-        ],
-        zhTime: [
-          { required: true, message: '请选择装货日期！', trigger: 'change' }
-        ],
-        zhperiod: [
-          { required: true, message: '请选择装货时间！', trigger: 'change' }
-        ],
-        xhTime: [
-          { required: true, message: '请选择卸货日期！', trigger: 'change' }
-        ],
-        xhperiod: [
-          { required: true, message: '请选择卸货时间！', trigger: 'change' }
-        ],
-        goodsName: [
-          { required: true, message: '请输入货物名称！', trigger: 'change' }
-        ],
-        goodsSpace: [
-          { required: true, message: '请输入货物面积！', trigger: 'change' }
-        ],
-        goodsWeight: [
-          { required: true, message: '请输入货物数量！', trigger: 'change' }
-        ],
-        payWay: [
-          { required: true, message: '请选择结算方式！', trigger: 'change' }
-        ],
-        // isFapiao: [
-        //   { required: true, message: '请选择是否需要开具发票!', trigger: 'change' }
-        // ],
-        isBox: [
-          { required: true, message: '请选择是否需接受拼箱！', trigger: 'change' }
-        ],
-        // ffee: [
-        //   { required: true, validator: validateFee, trigger: 'change' }
-        // ],
-        fprovince: [
-          { required: true, message: '请选择所属省份！', trigger: 'change' }
-        ],
-        fcity: [
-          { required: true, message: '请选择所属市！', trigger: 'change' }
-        ],
-        farea: [
-          { required: true, message: '请选择所属区！', trigger: 'change' }
-        ],
-        sprovince: [
-          { required: true, message: '请选择所属省份！', trigger: 'change' }
-        ],
-        scity: [
-          { required: true, message: '请选择所属市！', trigger: 'change' }
-        ],
-        sarea: [
-          { required: true, message: '请选择所属区！', trigger: 'change' }
-        ]
-      },
-      pickerOptionsStart: {
+      startDateDisabled: {
         disabledDate (time) {
           return time.getTime() < Date.now() - 8.64e7
         }
-      }
+      },
+      stageOptions: [],
+      timeOptions: [],
+      beforeDawn: [1, 2, 3, 4, 5, 6],
+      morning: [7, 8, 9, 10, 11, 12],
+      afternoon: [13, 14, 15, 16, 17, 18],
+      night: [19, 20, 21, 22, 23],
+      curTimeIdx: null,
+      curTimeType: null,
+      ruleDateTime: {
+        date: [
+          { required: true, message: '请选择', trigger: 'change' }
+        ],
+        stage: [
+          { required: true, message: '请选择', trigger: 'change' }
+        ],
+        time: [
+          { required: true, message: '请选择', trigger: 'change' }
+        ]
+      },
+      formFInfo: {
+        provinceId: '',
+        province: '',
+        city: '',
+        cityId: '',
+        areaId: '',
+        area: '',
+        addr: '',
+        fperson: '',
+        fphone: '',
+        ifSame: false,
+        tperson: '',
+        tphone: '',
+        ifSavePerson: false
+      },
+      formSInfo: {
+        provinceId: '',
+        province: '',
+        city: '',
+        cityId: '',
+        areaId: '',
+        area: '',
+        addr: '',
+        sperson: '',
+        sphone: '',
+        stell: '',
+        ifSavePerson: false
+      },
+      contractType: null,
+      curPersonInfoIdx: null,
+      curPersonInfoType: null, // 0 发货 1 收货
+      fInfo: [
+        {
+          forder: 0,
+          provinceId: '',
+          province: '',
+          city: '',
+          cityId: '',
+          areaId: '',
+          area: '',
+          addr: '',
+          fperson: '',
+          fphone: '',
+          ifSame: false,
+          tperson: '',
+          tphone: '',
+          ifSavePerson: false,
+          ftype: 0,
+          date: '',
+          stage: '',
+          time: ''
+        }
+        // {addr: '', faddress: '', fareacode: '', fareaname: '', fmobile: '', fmobile1: '', fname: '', fname1: '', ftype: 0, date: '', stage: '', time: ''}
+      ],
+      sInfo: [
+        {
+          forder: 0,
+          provinceId: '',
+          province: '',
+          city: '',
+          cityId: '',
+          areaId: '',
+          area: '',
+          addr: '',
+          sperson: '',
+          sphone: '',
+          stell: '',
+          ifSavePerson: false,
+          ftype: 1,
+          date: '',
+          stage: '',
+          time: ''
+        }
+        // {addr: '', faddress: '', fareacode: '', fareaname: '', fmobile: '', fmobile1: '', fname: '', fname1: '', ftype: 0, date: '', stage: '', time: ''}
+      ],
+      ProvinceOptions: [],
+      CityOptions: [],
+      AreaOptions: [],
+      carKind: '', // 用车类型
+      carLong: [],
+      carType: [],
+      carLongString: '',
+      carTypeString: '',
+      carLongOptions: [],
+      carTypeOptions: [],
+      formWeightVolume: {
+        weightS: '',
+        weightE: '',
+        volumeS: '',
+        volumeE: ''
+      },
+      weightVolumeString: '',
+      // 货物信息
+      hotGoodsOptions: [],
+      choosedGoodsList: [],
+      choosedGoods: {nameList: [], codeList: []},
+      goodsKeyWord: '',
+      goodsNameoptions: [],
+      formFee: {price: '', oil: ''},
+      feeString: '',
+      note: '',
+      serviceString: '',
+      services: [],
+      serviceOptions: [],
+      insurance: false,
+      saveOften: false
     }
   },
   computed: {
@@ -516,356 +614,631 @@ export default {
       checkStatus: state => state.checkStatus,
       userCode: state => state.userCode,
       userId: state => state.userId,
-      searchOrderId: state => state.searchOrderId,
-      ImgURL_PREFIX: state => state.ImgURL_PREFIX,
+      userFdepsta: state => state.userFdepsta,
       carTypeList: state => state.carTypeList,
       carLengthList: state => state.carLengthList,
       goodsTypeList: state => state.goodsTypeList
-    }),
-    totalWeight: function () {
-      let sum = 0
-      this.formAdd.orderGoodsList.map(item => {
-        sum += Number(item.goodsWeight)
-      })
-      return sum
-    }
-  },
-  created () {
-    this.getTimeTypeList()
-    this.getOrderDetail()
+    })
   },
   watch: {
-    // cityDistance: function (value) {
-    //   this.totalSum = (value * this.totalWeight / 1000 * this.unitPrice).toFixed(2)
-    // },
-    // totalWeight: function (value) {
-    //   this.totalSum = (this.cityDistance * value / 1000 * this.unitPrice).toFixed(2)
-    // },
-    // unitPrice: function (value) {
-    //   this.totalSum = (this.cityDistance * this.totalWeight / 1000 * value).toFixed(2)
-    // },
-    'formAdd.ifUseOilCard': function (value) {
-      if (value === 0) {
-        this.formAdd.oilCard = 0
+    'formDateTime.date': function (value) {
+      // this.formDateTime.stage = ''
+      let CurDate = new Date()
+      let CurHour = CurDate.getHours()
+      let CurDateSrting = formatToString(CurDate, 'Simple', '-')
+      if (CurDateSrting !== value) { // 今天往后的日期
+        this.stageOptions = [
+          {label: '全天', value: '全天'},
+          {label: '凌晨', value: '凌晨'},
+          {label: '上午', value: '上午'},
+          {label: '下午', value: '下午'},
+          {label: '晚上', value: '晚上'}
+        ]
+      } else { // 今天
+        if (CurHour < 1) { // 所有时间段都可以
+          this.stageOptions = [
+            {label: '全天', value: '全天'},
+            {label: '凌晨', value: '凌晨'},
+            {label: '上午', value: '上午'},
+            {label: '下午', value: '下午'},
+            {label: '晚上', value: '晚上'}
+          ]
+        } else if (CurHour >= 1 && CurHour < 6) {
+          this.stageOptions = [
+            {label: '凌晨', value: '凌晨'},
+            {label: '上午', value: '上午'},
+            {label: '下午', value: '下午'},
+            {label: '晚上', value: '晚上'}
+          ]
+        } else if (CurHour >= 6 && CurHour < 12) {
+          this.stageOptions = [
+            {label: '上午', value: '上午'},
+            {label: '下午', value: '下午'},
+            {label: '晚上', value: '晚上'}
+          ]
+        } else if (CurHour >= 12 && CurHour < 18) {
+          this.stageOptions = [
+            {label: '下午', value: '下午'},
+            {label: '晚上', value: '晚上'}
+          ]
+        } else {
+          this.stageOptions = [
+            {label: '晚上', value: '晚上'}
+          ]
+        }
+      }
+    },
+    'formDateTime.stage': function (value) {
+      // this.formDateTime.time = ''
+      let CurDate = new Date()
+      let CurHour = CurDate.getHours()
+      let CurDateSrting = formatToString(CurDate, 'Simple', '-')
+      if (CurDateSrting !== this.formDateTime.date) { // 今天往后的日期
+        switch (value) {
+          case '全天':
+            this.timeOptions = ['都可以']
+            break
+          case '凌晨':
+            this.timeOptions = ['都可以', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00']
+            break
+          case '上午':
+            this.timeOptions = ['都可以', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00']
+            break
+          case '下午':
+            this.timeOptions = ['都可以', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00']
+            break
+          case '晚上':
+            this.timeOptions = ['都可以', '19:00', '20:00', '21:00', '22:00', '23:00']
+            break
+        }
+      } else { // 今天
+        switch (value) {
+          case '全天':
+            this.timeOptions = ['都可以']
+            break
+          case '凌晨':
+            this.timeOptions = []
+            if (CurHour < 1) {
+              this.timeOptions.push('都可以')
+              this.beforeDawn.map(item => {
+                this.timeOptions.push((item < 10 ? '0' + item : item) + ':00')
+              })
+            } else {
+              this.beforeDawn.map(item => {
+                if (item > CurHour) {
+                  this.timeOptions.push((item < 10 ? '0' + item : item) + ':00')
+                }
+              })
+            }
+            break
+          case '上午':
+            this.timeOptions = []
+            if (CurHour < 7) {
+              this.timeOptions.push('都可以')
+              this.morning.map(item => {
+                this.timeOptions.push((item < 10 ? '0' + item : item) + ':00')
+              })
+            } else {
+              this.morning.map(item => {
+                if (item > CurHour) {
+                  this.timeOptions.push((item < 10 ? '0' + item : item) + ':00')
+                }
+              })
+            }
+            break
+          case '下午':
+            this.timeOptions = []
+            if (CurHour < 13) {
+              this.timeOptions.push('都可以')
+              this.afternoon.map(item => {
+                this.timeOptions.push((item < 10 ? '0' + item : item) + ':00')
+              })
+            } else {
+              this.afternoon.map(item => {
+                if (item > CurHour) {
+                  this.timeOptions.push((item < 10 ? '0' + item : item) + ':00')
+                }
+              })
+            }
+            break
+          case '晚上':
+            this.timeOptions = []
+            if (CurHour < 19) {
+              this.timeOptions.push('都可以')
+              this.night.map(item => {
+                this.timeOptions.push((item < 10 ? '0' + item : item) + ':00')
+              })
+            } else {
+              this.night.map(item => {
+                if (item > CurHour) {
+                  this.timeOptions.push((item < 10 ? '0' + item : item) + ':00')
+                }
+              })
+            }
+            break
+          default:
+            console.log(value)
+        }
+      }
+    },
+    dateTimeDialogVisible: function (value) {
+      if (!value) {
+        this.formDateTime = {
+          date: '',
+          stage: '',
+          time: ''
+        }
+        this.$refs['formDateTime'].resetFields()
+      }
+    },
+    contractInfoDialogVisible: function (value) {
+      if (value) {
+        this.getProvince()
+      }
+    },
+    // 发货人
+    'formFInfo.province': function (value) {
+      if (value) {
+        this.formFInfo.city = ''
+        this.formFInfo.area = ''
+        this.AreaOptions = []
+        this.getCity(0)
+      }
+    },
+    'formFInfo.city': function (value) {
+      if (value) {
+        this.formFInfo.area = ''
+        this.getArea(0)
+      }
+    },
+    'formFInfo.fperson': function (value) {
+      if (this.formFInfo.ifSame) {
+        this.formFInfo.tperson = value
+      }
+    },
+    'formFInfo.fphone': function (value) {
+      if (this.formFInfo.ifSame) {
+        this.formFInfo.tphone = value
+      }
+    },
+    'formFInfo.tperson': function (value) {
+      if (value !== this.formFInfo.fperson) {
+        this.formFInfo.ifSame = false
+      }
+    },
+    'formFInfo.tphone': function (value) {
+      if (value !== this.formFInfo.fphone) {
+        this.formFInfo.ifSame = false
+      }
+    },
+    // 收货人
+    'formSInfo.province': function (value) {
+      if (value) {
+        this.formSInfo.city = ''
+        this.formSInfo.area = ''
+        this.AreaOptions = []
+        this.getCity(1)
+      }
+    },
+    'formSInfo.city': function (value) {
+      if (value) {
+        this.formSInfo.area = ''
+        this.getArea(1)
       }
     }
   },
+  created () {
+    this.getOrderDetail()
+  },
   components: {
+    Contacts,
+    GoodsList
   },
   methods: {
     ...mapActions([
       'changeSiderIdx'
     ]),
-    // 添加一行货物信息
-    addOneLine () {
-      let tempGoods = {
-        goodsName: '',
-        goodsSpace: '',
-        goodsWeight: '',
-        id: '',
-        orderId: ''
-      }
-      this.formAdd.orderGoodsList.push(tempGoods)
-    },
-    // 删除一行货物信息
-    deleteOneLine (idx) {
-      this.formAdd.orderGoodsList.splice(idx, 1)
-    },
-    // 改变车型
-    changeCarType (typeId) {
-      // this.carTypeList.map(item => {
-      //   if (item.id === typeId) {
-      //     this.unitPrice = item.fprice
-      //     if (this.formAdd.goodsName !== '') {
-      //       this.getMaxFee()
-      //     }
-      //   }
-      // })
-    },
-    // 改变货物类型
-    changeGoodsType (typeId) {
-      // this.goodsTypeList.map(item => {
-      //   if (item.id === typeId) {
-      //     if (this.formAdd.carType !== '') {
-      //       this.getMaxFee()
-      //     }
-      //   }
-      // })
-    },
-    // 获取最高限价
-    getMaxFee () {
-      this.send({
-        name: '/zFareRuleController/getMaxPrice?goods_type=' + this.formAdd.goodsName + '&cartype=' + this.formAdd.carType + '&fkm=622',
-        method: 'GET',
-        data: ''
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.formAdd.max_price = res.data.data
-        } else {
-          this.$message({
-            message: res.data.message + '！',
-            type: 'error'
-          })
-        }
-      }).catch((res) => {
-        console.log(res)
+    addOneFInfo () {
+      let index = this.sInfo.length
+      this.fInfo.push({
+        forder: index,
+        provinceId: '',
+        province: '',
+        city: '',
+        cityId: '',
+        areaId: '',
+        area: '',
+        addr: '',
+        fperson: '',
+        fphone: '',
+        ifSame: false,
+        tperson: '',
+        tphone: '',
+        ifSavePerson: false,
+        ftype: 0,
+        date: '',
+        stage: '',
+        time: ''
       })
     },
-    // 订单新增提交
-    onSubmit (formName) {
-      if (this.checkStatus === '2') {
-        this.$message({
-          message: this.$store.state.prohibitTips,
-          type: 'warning'
-        })
-      } else {
-        if (this.formAdd.orderGoodsList.length === 0) {
-          this.$message({
-            message: '请至少添加一行货物信息！',
-            type: 'warning'
-          })
-          return false
+    moveOneFInfo (idx) {
+      this.fInfo.splice(idx, 1)
+    },
+    addOneSInfo () {
+      let index = this.sInfo.length
+      this.sInfo.push({
+        forder: index,
+        provinceId: '',
+        province: '',
+        city: '',
+        cityId: '',
+        areaId: '',
+        area: '',
+        addr: '',
+        sperson: '',
+        sphone: '',
+        stell: '',
+        ifSavePerson: false,
+        ftype: 1,
+        date: '',
+        stage: '',
+        time: ''
+      })
+    },
+    moveOneSInfo (idx) {
+      this.sInfo.splice(idx, 1)
+    },
+    changePersonInfo (type, idx, row) {
+      let rowInfo = objDeepCopy(row)
+      if (type === 0) {
+        this.formFInfo = row
+        if (row.areaId) {
+          setTimeout(() => {
+            this.formFInfo.city = rowInfo.city
+            this.formFInfo.cityId = rowInfo.cityId
+          }, 10)
+          setTimeout(() => {
+            this.formFInfo.area = rowInfo.area
+            this.formFInfo.areaId = rowInfo.areaId
+          }, 20)
         }
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.sureAdd()
+      } else {
+        this.formSInfo = row
+        if (row.areaId) {
+          setTimeout(() => {
+            this.formSInfo.city = rowInfo.city
+            this.formSInfo.cityId = rowInfo.cityId
+          }, 10)
+          setTimeout(() => {
+            this.formSInfo.area = rowInfo.area
+            this.formSInfo.areaId = rowInfo.areaId
+          }, 20)
+        }
+      }
+      this.curPersonInfoIdx = idx
+      this.curPersonInfoType = type
+      this.contractInfoDialogVisible = true
+      // if (!row.areaId) {
+      //   this.initResetFields(type)
+      // }
+    },
+    initResetFields (type) {
+      // if (type === 0) {
+      //   this.$refs.formFInfo.resetFields()
+      // } else {
+      //   this.$refs.formSInfo.resetFields()
+      // }
+    },
+    changeProvince (id) {
+      this.ProvinceOptions.find(Province => {
+        if (Province.id === id) {
+          if (this.curPersonInfoType === 0) {
+            this.formFInfo.province = Province.fname
+            this.formFInfo.provinceId = Province.id
           } else {
+            this.formSInfo.province = Province.fname
+            this.formSInfo.provinceId = Province.id
+          }
+        }
+      })
+    },
+    changeCity (id) {
+      this.CityOptions.find(City => {
+        if (City.sareacode === id) {
+          if (this.curPersonInfoType === 0) {
+            this.formFInfo.city = City.sareaname
+            this.formFInfo.cityId = City.sareacode
+          } else {
+            this.formSInfo.city = City.sareaname
+            this.formSInfo.cityId = City.sareacode
+          }
+        }
+      })
+    },
+    changeArea (id) {
+      this.AreaOptions.find(Area => {
+        if (Area.fareacode === id) {
+          if (this.curPersonInfoType === 0) {
+            this.formFInfo.area = Area.fareaname
+            this.formFInfo.areaId = Area.fareacode
+          } else {
+            this.formSInfo.area = Area.fareaname
+            this.formSInfo.areaId = Area.fareacode
+          }
+        }
+      })
+    },
+    chooseContact (type) {
+      this.contractType = type
+      this.contactListDialogVisible = true
+      setTimeout(() => { this.$refs.ContactsChild.getContract() }, 10)
+    },
+    // 填充返回选择的联系人
+    backContractInfo (type, personInfo) {
+      this.formFInfo.ifSame = false
+      // 0 发货人 1 提货人 2 发货人且提货人 3 收货人
+      switch (type) {
+        case 0:
+          this.formFInfo.fperson = personInfo.fname
+          this.formFInfo.fphone = personInfo.fmobile
+          this.formFInfo.addr = personInfo.faddress
+          this.formFInfo.province = personInfo.pareaname
+          this.formFInfo.provinceId = personInfo.pareacode
+          setTimeout(() => {
+            this.formFInfo.city = personInfo.sareaname
+            this.formFInfo.cityId = personInfo.sareacode
+          }, 10)
+          setTimeout(() => {
+            this.formFInfo.area = personInfo.fareaname
+            this.formFInfo.areaId = personInfo.fareacode
+          }, 20)
+          break
+        case 1:
+          this.formFInfo.tperson = personInfo.fname
+          this.formFInfo.tphone = personInfo.fmobile
+          break
+        case 2:
+          this.formFInfo.fperson = personInfo.fname
+          this.formFInfo.fphone = personInfo.fmobile
+          this.formFInfo.addr = personInfo.faddress
+          this.formFInfo.tperson = personInfo.fname
+          this.formFInfo.tphone = personInfo.fmobile
+          this.formFInfo.province = personInfo.pareaname
+          this.formFInfo.provinceId = personInfo.pareacode
+          setTimeout(() => {
+            this.formFInfo.city = personInfo.sareaname
+            this.formFInfo.cityId = personInfo.sareacode
+          }, 10)
+          setTimeout(() => {
+            this.formFInfo.area = personInfo.fareaname
+            this.formFInfo.areaId = personInfo.fareacode
+          }, 20)
+          break
+        case 3:
+          this.formSInfo.sperson = personInfo.fname
+          this.formSInfo.sphone = personInfo.fmobile
+          this.formSInfo.stell = personInfo.fmobile1
+          this.formSInfo.addr = personInfo.faddress
+          this.formSInfo.province = personInfo.pareaname
+          this.formSInfo.provinceId = personInfo.pareacode
+          setTimeout(() => {
+            this.formSInfo.city = personInfo.sareaname
+            this.formSInfo.cityId = personInfo.sareacode
+          }, 10)
+          setTimeout(() => {
+            this.formSInfo.area = personInfo.fareaname
+            this.formSInfo.areaId = personInfo.fareacode
+          }, 20)
+          break
+      }
+      this.contactListDialogVisible = false
+    },
+    sameSwitch (value) {
+      if (value) {
+        this.formFInfo.tperson = this.formFInfo.fperson
+        this.formFInfo.tphone = this.formFInfo.fphone
+      }
+    },
+    sureAddFPerson () {
+      switch (this.curPersonInfoType) {
+        case 0:
+          // 验证
+          if (!this.formFInfo.cityId || !this.formFInfo.addr || !this.formFInfo.fperson || !this.formFInfo.fphone || !this.formFInfo.tperson || !this.formFInfo.tphone) {
             this.$message({
               message: '请将信息填写完整！',
               type: 'warning'
             })
             return false
+          } else {
+            this.fInfo[this.curPersonInfoIdx] = this.formFInfo
+            this.contractInfoDialogVisible = false
           }
-        })
+          break
+        case 1:
+          if (!this.formSInfo.cityId || !this.formSInfo.addr || !this.formSInfo.sperson || !this.formSInfo.sphone) {
+            this.$message({
+              message: '请将信息填写完整！',
+              type: 'warning'
+            })
+            return false
+          } else {
+            this.sInfo[this.curPersonInfoIdx] = this.formSInfo
+            this.contractInfoDialogVisible = false
+          }
+          break
       }
     },
-    sureAdd () {
-      let DATA = {
-        fmaxFee: this.formAdd.fmaxFee,
-        ffee: this.formAdd.ffee,
-        foilCard: this.formAdd.oilCard,
-        fweight: this.totalWeight,
-        id: this.formAdd.id,
-        fstatus: this.formAdd.fstatus,
-        fcheck: this.formAdd.fcheck,
-        fmainId: this.formAdd.fmainId,
-        fsubId: this.formAdd.fsubId,
-        fhName: this.formAdd.fhName,
-        fhTelephone: this.formAdd.fhTelephone,
-        fh: this.formAdd.farea,
-        fhAddress: this.formAdd.fhAddress,
-        shName: this.formAdd.shName,
-        shTelephone: this.formAdd.shTelephone,
-        sh: this.formAdd.sarea,
-        shArea: '', // this.formAdd.shArea,
-        shAddress: this.formAdd.shAddress,
-        carType: this.formAdd.carType,
-        carLength: this.formAdd.carLength,
-        zhTime: this.formAdd.zhTime,
-        zhperiod: this.formAdd.zhperiod,
-        xhTime: this.formAdd.xhTime,
-        xhperiod: this.formAdd.xhperiod,
-        goodsName: this.formAdd.goodsName,
-        orderGoodsList: this.formAdd.orderGoodsList,
-        ftype: this.formAdd.payWay, // 0_现结 1_月结
-        // isFapiao: this.formAdd.isFapiao,
-        boxNo: this.formAdd.boxNo,
-        isBox: this.formAdd.isBox
-      }
-      this.ifLoading = true
-      this.send({
-        name: '/orderController/' + this.searchOrderId,
-        method: 'PUT',
-        data: DATA
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.$message({
-            message: '订单修改成功！',
-            type: 'success'
-          })
-          this.ifLoading = false
-        } else {
-          this.$message({
-            message: res.data.message + '！',
-            type: 'error'
-          })
-          this.ifLoading = false
+    toChooseTime (type, timeIdx) {
+      this.curTimeIdx = timeIdx
+      this.curTimeType = type
+      if (type === '发货') {
+        this.formDateTime = {
+          date: this.fInfo[timeIdx].date,
+          stage: this.fInfo[timeIdx].stage,
+          time: this.fInfo[timeIdx].time
         }
-      }).catch((res) => {
-        console.log(res)
-        this.ifLoading = false
-      })
-    },
-    // 付款
-    payment () {
-      if (this.checkStatus === '2') {
-        this.$message({
-          message: this.$store.state.prohibitTips,
-          type: 'warning'
-        })
       } else {
-        this.$confirm('确认支付该订单的金额?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.surePay()
-        }).catch(() => {
-        })
-      }
-    },
-    surePay () {
-      this.send({
-        name: '/orderController/pay/' + this.searchOrderId,
-        method: 'POST',
-        data: {
+        this.formDateTime = {
+          date: this.sInfo[timeIdx].date,
+          stage: this.sInfo[timeIdx].stage,
+          time: this.sInfo[timeIdx].time
         }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.$message({
-            message: '支付成功！',
-            type: 'success'
-          })
-          this.getOrderDetail()
+      }
+      this.dateTimeDialogVisible = true
+    },
+    choosedTime (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          // 验证时间是否有效
+          let Time = ''
+          if (this.formDateTime.time === '都可以') {
+            switch (this.formDateTime.stage) {
+              case '全天':
+                Time = '00:00'
+                break
+              case '凌晨':
+                Time = '01:00'
+                break
+              case '上午':
+                Time = '07:00'
+                break
+              case '下午':
+                Time = '13:00'
+                break
+              case '晚上':
+                Time = '19:00'
+                break
+            }
+          } else {
+            Time = this.formDateTime.time
+          }
+          let choosedTime = this.formDateTime.date + ' ' + Time + ':59'
+          let formatString = choosedTime.replace(/-/g, '/')
+          let choosedTimeStamp = (new Date(formatString)).getTime()
+          let curTimeStamp = (new Date()).getTime()
+          if (choosedTimeStamp <= curTimeStamp) {
+            this.$message({
+              message: '不能选择已过去的时间，请重新选择！',
+              type: 'warning'
+            })
+            this.$refs['formDateTime'].resetFields()
+            this.stageOptions = []
+            this.timeOptions = []
+          } else {
+            // 满足则返回填充页面
+            switch (this.curTimeType) {
+              case '发货':
+                this.fInfo[this.curTimeIdx].date = this.formDateTime.date
+                this.fInfo[this.curTimeIdx].stage = this.formDateTime.stage
+                this.fInfo[this.curTimeIdx].time = this.formDateTime.time
+                break
+              case '收货':
+                this.sInfo[this.curTimeIdx].date = this.formDateTime.date
+                this.sInfo[this.curTimeIdx].stage = this.formDateTime.stage
+                this.sInfo[this.curTimeIdx].time = this.formDateTime.time
+                break
+            }
+            this.$refs['formDateTime'].resetFields()
+            this.stageOptions = []
+            this.timeOptions = []
+            this.dateTimeDialogVisible = false
+          }
         } else {
           this.$message({
-            message: '支付失败！',
-            type: 'error'
+            message: '请将信息填写完整！',
+            type: 'warning'
           })
+          return false
         }
-      }).catch((res) => {
-        console.log(res)
-        this.$message({
-          message: 'interface error！',
-          type: 'error'
-        })
       })
     },
-    // surePay () {
-    //   this.send({
-    //     name: '/zPayAccountRegisterController',
-    //     method: 'POST',
-    //     data: {
-    //       fmoney: this.formAdd.ffee,
-    //       payType: 1,
-    //       orderNo: this.order_no,
-    //       orderId: this.searchOrderId,
-    //       registerId: this.userId
-    //     }
-    //   }).then(res => {
-    //     if (res.data.respCode === '0') {
-    //       this.$message({
-    //         message: '支付成功！',
-    //         type: 'success'
-    //       })
-    //     }
-    //   }).catch((res) => {
-    //     console.log(res)
-    //   })
-    // },
-    // 数据清空恢复初始化
-    clearDataABack () {
-      this.formAdd = {
-        id: '',
-        fstatus: '0',
-        fcheck: '0',
-        fmainId: '',
-        fsubId: '',
-        fhName: '',
-        fhTelephone: '',
-        fh: '',
-        fhAddress: '',
-        shName: '',
-        shTelephone: '',
-        sh: '',
-        shArea: '',
-        shAddress: '',
-        carType: '',
-        carLength: '',
-        zhTime: '',
-        goodsName: '',
-        orderGoodsList: [
-          {
-            goodsName: '',
-            goodsSpace: '',
-            goodsWeight: '',
-            id: '',
-            orderId: ''
-          }
-        ],
-        isFapiao: 0,
-        ifUseOilCard: 0,
-        oilCard: 0
+    toChooseCarType () {
+      this.carTypeDialogVisible = true
+      this.getCarLong()
+      this.getCarType()
+    },
+    toWeightVolume () {
+      this.weightVolumeDialogVisible = true
+    },
+    checkValue (val, pro) {
+      if (val > 999) {
+        this.formWeightVolume[pro] = 999
       }
-      // 返回列表
-      this.changeSiderIdx('1-1')
     },
-    // 返回订单列表页
-    backOrderList () {
-      this.$emit('toggleOrderDetail')
+    sureWeightVolume () {
+      if (!this.formWeightVolume.weightS && !this.formWeightVolume.weightE && !this.formWeightVolume.volumeS && !this.formWeightVolume.volumeE) {
+        this.$message({
+          message: '重量和体积必填一项！',
+          type: 'warning'
+        })
+        return false
+      }
+      // 最大最小值验证
+      if ((Number(this.formWeightVolume.weightS) >= Number(this.formWeightVolume.weightE)) && Number(this.formWeightVolume.weightS) > 0 && Number(this.formWeightVolume.weightE) > 0) {
+        this.$message({
+          message: '最大和最小重量相同，只需填写最小值！',
+          type: 'warning'
+        })
+        return false
+      }
+      if ((Number(this.formWeightVolume.volumeS) >= Number(this.formWeightVolume.volumeE)) && Number(this.formWeightVolume.volumeS) > 0 && Number(this.formWeightVolume.volumeE) > 0) {
+        this.$message({
+          message: '最大和最小体积相同，只需填写最小值！',
+          type: 'warning'
+        })
+        return false
+      }
+      // 格式化显示
+      this.formatWVStr()
+      this.weightVolumeDialogVisible = false
     },
-    // 获取订单详情
-    getOrderDetail () {
+    formatWVStr () {
+      let weightString = ''
+      let volumeString = ''
+      if (this.formWeightVolume.weightS && this.formWeightVolume.weightE) {
+        weightString = this.formWeightVolume.weightS + '-' + this.formWeightVolume.weightE
+      } else {
+        weightString = this.formWeightVolume.weightS || this.formWeightVolume.weightE
+      }
+      if (this.formWeightVolume.volumeS && this.formWeightVolume.volumeE) {
+        volumeString = this.formWeightVolume.volumeS + '-' + this.formWeightVolume.volumeE
+      } else {
+        volumeString = this.formWeightVolume.volumeS || this.formWeightVolume.volumeE
+      }
+      if (weightString !== '' && volumeString !== '') {
+        this.weightVolumeString = weightString + '吨' + ' | ' + volumeString + '方'
+      } else {
+        this.weightVolumeString = (weightString ? weightString + '吨' : '') + (volumeString ? volumeString + '方' : '')
+      }
+    },
+    // 确定车型车长
+    sureChoosedCar () {
+      if (this.carKind && this.carLong.length > 0 && this.carType.length > 0) {
+        let carLongString = ''
+        let carTypeString = ''
+        this.carLong.map(item => {
+          carLongString = carLongString + '/' + item
+        })
+        this.carType.map(item => {
+          carTypeString = carTypeString + '/' + item
+        })
+        this.carLongString = carLongString.substring(1)
+        this.carTypeString = carTypeString.substring(1)
+        this.carTypeDialogVisible = false
+      } else {
+        this.$message({
+          message: '请将勾选必选项！',
+          type: 'warning'
+        })
+      }
+    },
+    getCarType () {
       this.send({
-        name: '/orderController/' + this.searchOrderId,
-        method: 'GET',
-        data: {}
+        name: '/typeController/tstype/2c90b4bf6c1ccde9016c1cdb2c4f000a',
+        method: 'GET'
       }).then(res => {
         if (res.data.respCode === '0') {
-          let Info = res.data.data
-          this.order_no = Info.order_no
-          let temp = Info
-          temp.fmaxFee = Info.fmax_fee
-          temp.ffee = Info.ffee
-          temp.ifUseOilCard = (temp.foil_card === 0 ? 0 : 1) // 0_不使用 1_使用
-          temp.oilCard = Info.foil_card
-          temp.fprovince = Info.origin_province_id
-          temp.fcity = Info.origin_city_id
-          temp.farea = Info.origin_area_id
-          temp.sprovince = Info.destination_province_id
-          temp.scity = Info.destination_city_id
-          temp.sarea = Info.destination_area_id
-          temp.zhTime = Info.zh_time.slice(0, 10) // new Date(Info.zh_time.time)
-          temp.xhTime = Info.xh_time.slice(0, 10)
-          temp.zhperiod = Info.zhperiod
-          temp.xhperiod = Info.xhperiod
-          temp.orderGoodsList = Info.ordergoods
-          temp.carType = Info.car_type
-          temp.carLength = Info.car_length
-          temp.fmainId = Info.fmain_id
-          temp.fsubId = Info.fsub_id
-          temp.goodsName = Info.goods_name
-          temp.fhName = Info.fh_name
-          temp.fhTelephone = Info.fh_telephone
-          temp.fhAddress = Info.fh_address
-          temp.shAddress = Info.sh_address
-          temp.shArea = Info.sh_area
-          temp.shName = Info.sh_name
-          temp.shTelephone = Info.sh_telephone
-          temp.payWay = Info.ftype
-          temp.isFapiao = Info.is_fapiao
-          temp.isBox = Info.is_box
-          temp.boxNo = Info.box_no
-          temp.floadpics = Info.floadpics ? (this.ImgURL_PREFIX + Info.floadpics) : null
-          temp.floadtime = Info.floadtime
-          temp.frecepics = Info.frecepics ? (this.ImgURL_PREFIX + Info.frecepics) : null
-          temp.frecetime = Info.frecetime
-          temp.frece = Info.frece
-          // temp.payType = Info.payType ? Info.payType : 0
-          this.appointName = Info.appoint_name ? Info.appoint_name : '未指定'
-          this.formAdd = temp
-          // 省市区
-          this.getProvince()
-          this.changeFprovince(temp.fprovince, 1)
-          this.changeSprovince(temp.sprovince, 1)
-          this.changeFcity(temp.fcity, 1)
-          this.changeScity(temp.scity, 1)
-          // 价格
-          this.getDistanceDefault(temp.farea, temp.sarea)
-          // 车型单价
-          // this.getCartUnitPrice(Info.car_type)
-          // 查询最高限价
-          // this.getMaxFee()
+          this.carTypeOptions = res.data.data
         } else {
           this.$message({
             message: res.data.message + '！',
@@ -876,24 +1249,43 @@ export default {
         console.log(res)
       })
     },
-    // 回单确认
-    huidanConfirm () {
-      if (this.checkStatus === '2') {
-        this.$message({
-          message: this.$store.state.prohibitTips,
-          type: 'warning'
-        })
-      } else {
+    getCarLong () {
+      this.send({
+        name: '/zCarLengthController/list',
+        method: 'GET'
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.carLongOptions = res.data.data
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    // 点击车长显示详情
+    showTips (val, CarLong) {
+      // 判断是否含有不限车长
+      if (val && CarLong.carLength === '不限车长') {
+        this.carLong = ['不限车长']
+      }
+      // 选择具体车长后将不限车长移除
+      if (val && CarLong.carLength !== '不限车长' && this.carLong.indexOf('不限车长') !== -1) {
+        this.carLong.splice(this.carLong.indexOf('不限车长'), 1)
+      }
+      // 获取tips
+      if (val && CarLong.carLength !== '不限车长') {
         this.send({
-          name: '/orderController/huidan/' + this.searchOrderId,
-          method: 'POST'
+          name: '/zCarLengthController/' + CarLong.id,
+          method: 'GET'
         }).then(res => {
           if (res.data.respCode === '0') {
-            this.$message({
-              message: '回单确认成功！',
-              type: 'success'
-            })
-            this.getOrderDetail()
+            let CarInfo = res.data.data
+            this.$message.closeAll()
+            this.$message('车长' + CarInfo.carLength + ',约有' + CarInfo.loadVolume + ',可装货约' + CarInfo.loadWeight)
           } else {
             this.$message({
               message: res.data.message + '！',
@@ -902,129 +1294,29 @@ export default {
           }
         }).catch((res) => {
           console.log(res)
-          this.$message({
-            message: '回单确认失败！',
-            type: 'error'
-          })
         })
       }
     },
-    // 获取初始发货地与收货地的距离
-    getDistanceDefault (fh, sh) {
-      this.send({
-        name: '/orderController/cityDistance?fh=' + fh + '&sh=' + sh,
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.code === 1) {
-          this.cityDistance = res.data.cityDistance
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 改变收货地省
-    changeFprovince (id, type) {
-      this.getCity(id, 'fcityList')
-      if (type !== 1) {
-        this.formAdd.fcity = ''
-        this.formAdd.farea = ''
+    changeCarType (val, CarType) {
+      // 判断是否含有不限车长
+      if (val && CarType.typename === '不限车型') {
+        this.carType = ['不限车型']
+      }
+      // 选择具体车长后将不限车长移除
+      if (val && CarType.typename !== '不限车型' && this.carType.indexOf('不限车型') !== -1) {
+        this.carType.splice(this.carType.indexOf('不限车型'), 1)
       }
     },
-    // 改变发货地市
-    changeFcity (id, type) {
-      this.getArea(id, 'fareaList')
-      if (type !== 1) {
-        this.formAdd.farea = ''
-      }
-    },
-    // 改变发货地区
-    changeFarea (id) {
-      if (this.formAdd.scity !== '') {
-        this.getDistance()
-      }
-    },
-    // 改变发货地省
-    changeSprovince (id, type) {
-      this.getCity(id, 'scityList')
-      if (type !== 1) {
-        this.formAdd.scity = ''
-        this.formAdd.sarea = ''
-      }
-    },
-    // 改变收货地市
-    changeScity (id, type) {
-      this.getArea(id, 'sareaList')
-      if (type !== 1) {
-        this.formAdd.sarea = ''
-      }
-    },
-    // 改变收货地区
-    changeSarea (id) {
-      if (this.formAdd.fcity !== '') {
-        this.getDistance()
-      }
-    },
-    // 获取省下拉
     getProvince () {
       this.send({
-        name: '/registerDriverController/regionSelect?pid=' + this.fProvincePid,
-        method: 'GET',
-        data: {
-        }
+        name: '/tokens/regionSelect?pid=100000',
+        method: 'GET'
       }).then(res => {
         if (res.data.respCode === '0') {
-          this.fprovinceList = res.data.data
-          this.sprovinceList = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 获取市下拉
-    getCity (id, property) {
-      this.send({
-        name: '/registerDriverController/regionSelect?pid=' + id,
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this[property] = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 获取区下拉
-    getArea (id, property) {
-      this.send({
-        name: '/registerDriverController/regionSelect?pid=' + id,
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this[property] = res.data.data
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 获取装货时间段
-    getTimeTypeList () {
-      this.send({
-        name: '/typeController/tstype/2c9f1a626c40745d016c4146de420003',
-        method: 'GET',
-        data: {
-        }
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.timeTypeList = res.data.data
+          this.ProvinceOptions = res.data.data
         } else {
           this.$message({
-            message: '获取省份信息失败！',
+            message: res.data.message + '！',
             type: 'error'
           })
         }
@@ -1032,24 +1324,481 @@ export default {
         console.log(res)
       })
     },
-    // 获取车型单价
-    getCartUnitPrice (carTypeId) {
-      this.unitPrice = this.carTypeList.find(carType => {
-        if (carType.id === carTypeId) {
-          return carType.fprice
+    getCity (type) {
+      this.send({
+        name: '/tokens/regionSelect?pid=' + (type === 0 ? this.formFInfo.provinceId : this.formSInfo.provinceId) + '&ftype=0&fname=' + (type === 0 ? this.formFInfo.province : this.formSInfo.province),
+        method: 'GET'
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.CityOptions = res.data.data
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
         }
+      }).catch((res) => {
+        console.log(res)
       })
     },
-    // 获取发货地与收货地的距离
-    getDistance () {
+    getArea (type) {
       this.send({
-        name: '/orderController/cityDistance?fh=' + this.formAdd.farea + '&sh=' + this.formAdd.sarea,
-        method: 'GET',
-        data: {
-        }
+        name: '/tokens/regionSelect?pid=' + (type === 0 ? this.formFInfo.cityId : this.formSInfo.cityId) + '&ftype=1&fname=' + (type === 0 ? this.formFInfo.city : this.formSInfo.city),
+        method: 'GET'
       }).then(res => {
-        if (res.data.code === 1) {
-          this.cityDistance = res.data.cityDistance
+        if (res.data.respCode === '0') {
+          this.AreaOptions = res.data.data
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    // 添加货物信息
+    toChooseGoods () {
+      this.goodsDialogVisible = true
+      this.getHotGoods()
+    },
+    remoteMethod (query) {
+      if (query !== '') {
+        this.searchLoading = true
+        this.send({
+          name: '/typeController/getTypeName?fname=' + query,
+          method: 'GET'
+        }).then(res => {
+          if (res.data.respCode === '0') {
+            this.goodsNameoptions = res.data.data
+            this.searchLoading = false
+          } else if (res.data.respCode === '-1') {
+            this.goodsNameoptions = [{fid: 999, fname: query}]
+            this.searchLoading = false
+          } else {
+            this.$message({
+              message: res.data.message + '！',
+              type: 'error'
+            })
+            this.searchLoading = false
+          }
+        }).catch((res) => {
+          console.log(res)
+        })
+      } else {
+        this.goodsNameoptions = []
+      }
+    },
+    chooseHotGoods (goods) {
+      let idx = this.choosedGoods.nameList.indexOf(goods.fname)
+      if (idx === -1) {
+        this.chooseGoodsName(goods)
+      } else {
+        // 热门货物移除
+        this.removeGoods(idx)
+      }
+    },
+    chooseGoodsName (value, Type) {
+      this.goodsKeyWord = ''
+      let Goods = value
+      if (Type === 0) {
+        let curTmp = this.goodsNameoptions.find(item => {
+          return item.fname === Goods
+        })
+        Goods = curTmp
+      }
+      if (this.choosedGoods.nameList.indexOf(Goods.fname) === -1) {
+        this.choosedGoods.nameList.push(Goods.fname)
+        this.choosedGoods.codeList.push(Goods.fcode)
+      } else {
+        // this.$message({
+        //   message: '已选择该货物，不可重复选择！',
+        //   type: 'warning'
+        // })
+      }
+    },
+    removeGoods (idx) {
+      this.choosedGoods.nameList.splice(idx, 1)
+      this.choosedGoods.codeList.splice(idx, 1)
+    },
+    closeGoodsList () {
+      this.goodsListDialogVisible = false
+    },
+    seeMore () {
+      this.goodsListDialogVisible = true
+    },
+    sureGoods () {
+      if (this.choosedGoods.nameList.length === 0) {
+        this.$message({
+          message: '请至少选择一个货物类型！',
+          type: 'warning'
+        })
+        return false
+      }
+      this.choosedGoodsList = this.choosedGoods.nameList
+      this.goodsDialogVisible = false
+    },
+    // search () {
+    // },
+    toChooseFee () {
+      this.feeDialogVisible = true
+    },
+    sureFee () {
+      if (!this.formFee.price) {
+        this.$message({
+          message: '运费不能为空！',
+          type: 'warning'
+        })
+        return false
+      }
+      if (Number(this.formFee.price) < Number(this.formFee.oil)) {
+        this.$message({
+          message: '油卡费用不能大于运费！',
+          type: 'warning'
+        })
+        return false
+      }
+      this.feeDialogVisible = false
+      if (!this.formFee.oil) {
+        this.feeString = '期望运费：' + this.formFee.price + '元'
+      } else {
+        this.feeString = '期望运费：' + this.formFee.price + '元 / 其中油卡：' + this.formFee.price + '元'
+      }
+    },
+    toChooseService () {
+      this.getService()
+      this.serviceDialogVisible = true
+    },
+    toPreStep () {
+      this.step = 1
+    },
+    toNextStep () {
+      // 验证
+      for (let i = 0; i < this.fInfo.length; i++) {
+        if (!this.fInfo[i].area || !this.fInfo[i].time) {
+          this.$message({
+            message: '请将发货人信息填写完整！',
+            type: 'warning'
+          })
+          return false
+        }
+      }
+      for (let i = 0; i < this.sInfo.length; i++) {
+        if (!this.sInfo[i].area) {
+          this.$message({
+            message: '请将收货人信息填写完整！',
+            type: 'warning'
+          })
+          return false
+        }
+      }
+      if (!this.carKind || !this.carTypeString || !this.carLongString) {
+        this.$message({
+          message: '请将车型车长信息填写完整！',
+          type: 'warning'
+        })
+        return false
+      }
+      if (!this.weightVolumeString) {
+        this.$message({
+          message: '请将重量体积信息填写完整！',
+          type: 'warning'
+        })
+        return false
+      }
+      this.step = 2
+    },
+    // 订单提交
+    sureAddOrder () {
+      // 验证第二步信息
+      if (this.choosedGoodsList.length === 0) {
+        this.$message({
+          message: '请选择货物类型！',
+          type: 'warning'
+        })
+        return false
+      }
+      if (!this.formFee.price) {
+        this.$message({
+          message: '请填写期望运费！',
+          type: 'warning'
+        })
+        return false
+      }
+      this.subLoading = true
+      let Data = {
+        carlength: this.carLongString,
+        cartype: this.carTypeString,
+        ffee: this.formFee.price, // 运费
+        fid: this.userId,
+        fmainid: this.userCode,
+        fnote: this.note,
+        requireFnote: this.serviceString.substring(2).replace(/\s+/g, ''),
+        foilcard: this.formFee.oil > 0 ? this.formFee.oil : 0,
+        fsubid: '', // 登陆人子账号
+        fvolume: this.formWeightVolume.volumeS,
+        fvolume1: this.formWeightVolume.volumeE,
+        fweight: this.formWeightVolume.weightS,
+        fweight1: this.formWeightVolume.weightE,
+        goodscode: this.choosedGoods.codeList.join(','), // 货物代码
+        goodsname: this.choosedGoodsList.join('|'),
+        id: this.curOrderId,
+        iscf: this.saveOften ? 1 : 0, // 是否长发货源 0 1
+        useCarType: this.carKind,
+        zorderContactList: this.fInfo.concat(this.sInfo).map(Item => {
+          let tmpObj = {}
+          if (Item.ftype === 0) {
+            tmpObj = {
+              forder: Item.forder,
+              faddress: Item.addr,
+              pareaname: Item.province,
+              pareacode: Item.provinceId,
+              sareaname: Item.city,
+              sareacode: Item.cityId,
+              fareacode: Item.areaId,
+              fareaname: Item.area,
+              fmobile: Item.fphone,
+              fmobile1: Item.tphone,
+              fname: Item.fperson,
+              fname1: Item.tperson,
+              ftype: Item.ftype, // 0发货 1收货
+              savelxr: Item.ifSavePerson ? 1 : 0,
+              zhtime: this.formatTimeStage(Item.date, Item.stage, Item.time)
+            }
+          } else {
+            tmpObj = {
+              forder: Item.forder,
+              faddress: Item.addr,
+              pareaname: Item.province,
+              pareacode: Item.provinceId,
+              sareaname: Item.city,
+              sareacode: Item.cityId,
+              fareacode: Item.areaId,
+              fareaname: Item.area,
+              fmobile: Item.sphone,
+              fmobile1: Item.stell,
+              fname: Item.sperson,
+              ftype: Item.ftype, // 0发货 1收货
+              savelxr: Item.ifSavePerson ? 1 : 0,
+              xhtime: this.formatTimeStage(Item.date, Item.stage, Item.time)
+            }
+          }
+          return tmpObj
+        })
+      }
+      this.send({
+        name: '/zOrderController/updateOrder',
+        method: 'POST',
+        data: Data
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.$message({
+            message: '修改成功！',
+            type: 'success'
+          })
+          this.subLoading = false
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+          this.subLoading = false
+        }
+      }).catch((res) => {
+        console.log(res)
+        this.subLoading = false
+      })
+    },
+    // 热门货物
+    getHotGoods () {
+      this.send({
+        name: '/typeController/gethotlist',
+        method: 'GET'
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.hotGoodsOptions = res.data.data
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    // 获取服务需求
+    getService () {
+      this.send({
+        name: '/typeController/tstype/2c90b4576e634e80016e637fb54a0003',
+        method: 'GET'
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          this.serviceOptions = res.data.data
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
+        }
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    sureService () {
+      this.serviceString = ''
+      this.services.map(item => {
+        this.serviceString += ' | ' + item
+      })
+      this.serviceDialogVisible = false
+    },
+    formatTimeStage (date, stage, time) {
+      switch (stage) {
+        case '全天':
+          return date + 'T23:59:00.000Z'
+        case '凌晨':
+          if (time === '都可以') {
+            return date + 'T06:30:00.000Z'
+          } else {
+            return date + 'T' + time + ':00.000Z'
+          }
+        case '上午':
+          if (time === '都可以') {
+            return date + 'T12:30:00.000Z'
+          } else {
+            return date + 'T' + time + ':00.000Z'
+          }
+        case '下午':
+          if (time === '都可以') {
+            return date + 'T18:30:00.000Z'
+          } else {
+            return date + 'T' + time + ':00.000Z'
+          }
+        case '晚上':
+          if (time === '都可以') {
+            return date + 'T23:58:00.000Z'
+          } else {
+            return date + 'T' + time + ':00.000Z'
+          }
+        default:
+          return ''
+      }
+    },
+    timeStrToSage (timeStr) {
+      // let Hour = timeStr.slice(0, 2)
+      if (timeStr === '23:59:00') {
+        return {stage: '全天', time: '都可以'}
+      } else if (timeStr === '06:30:00') {
+        return {stage: '凌晨', time: '都可以'}
+      } else if (timeStr === '12:30:00') {
+        return {stage: '上午', time: '都可以'}
+      } else if (timeStr === '18:30:00') {
+        return {stage: '下午', time: '都可以'}
+      } else if (timeStr === '23:58:00') {
+        return {stage: '晚上', time: '都可以'}
+      } else {
+        let Hour = Number(timeStr.slice(0, 2))
+        if (Hour <= 6) {
+          return {stage: '凌晨', time: timeStr.slice(0, 5)}
+        }
+        if (Hour >= 7 && Hour <= 12) {
+          return {stage: '上午', time: timeStr.slice(0, 5)}
+        }
+        if (Hour >= 13 && Hour <= 18) {
+          return {stage: '下午', time: timeStr.slice(0, 5)}
+        }
+        if (Hour >= 19 && Hour <= 23) {
+          return {stage: '晚上', time: timeStr.slice(0, 5)}
+        }
+      }
+      return timeStr
+    },
+    getOrderDetail () {
+      this.send({
+        name: '/zOrderController/' + this.curOrderId,
+        method: 'GET'
+      }).then(res => {
+        if (res.data.respCode === '0') {
+          let DetailInfo = res.data.data
+          // 收货发货信息
+          this.fInfo = DetailInfo.orderFhcontactlist.map(fInfo => {
+            let tmpTime = this.timeStrToSage(fInfo.zhtime.slice(11))
+            return {
+              forder: fInfo.forder,
+              provinceId: fInfo.pareacode,
+              province: fInfo.pareaname,
+              city: fInfo.sareaname,
+              cityId: fInfo.sareacode,
+              areaId: fInfo.fareacode,
+              area: fInfo.fareaname,
+              addr: fInfo.faddress1,
+              fperson: fInfo.fname,
+              fphone: fInfo.fmobile,
+              ifSame: false,
+              tperson: fInfo.fname1,
+              tphone: fInfo.fmobile1,
+              ifSavePerson: false,
+              ftype: 0,
+              date: fInfo.zhtime.slice(0, 10),
+              stage: tmpTime.stage,
+              time: tmpTime.time
+            }
+          })
+          this.sInfo = DetailInfo.orderShcontactlist.map(sInfo => {
+            let tmpTime = this.timeStrToSage(sInfo.xhtime.slice(11))
+            return {
+              forder: sInfo.forder,
+              provinceId: sInfo.pareacode,
+              province: sInfo.pareaname,
+              city: sInfo.sareaname,
+              cityId: sInfo.sareacode,
+              areaId: sInfo.fareacode,
+              area: sInfo.fareaname,
+              addr: sInfo.faddress1,
+              sperson: sInfo.fname,
+              sphone: sInfo.fmobile,
+              stell: sInfo.fmobile1,
+              ifSavePerson: false,
+              ftype: 1,
+              date: sInfo.xhtime.slice(0, 10),
+              stage: tmpTime.stage,
+              time: tmpTime.time
+            }
+          })
+          // 重量体积
+          this.formWeightVolume.weightS = DetailInfo.fweight
+          this.formWeightVolume.weightE = DetailInfo.fweight1
+          this.formWeightVolume.volumeS = DetailInfo.fvolume
+          this.formWeightVolume.volumeE = DetailInfo.fvolume1
+          this.formatWVStr()
+          // 车型车长
+          this.carKind = DetailInfo.use_cartype
+          this.carType = DetailInfo.cartype.split('/')
+          this.carLong = DetailInfo.carlength.split('/')
+          this.carLongString = DetailInfo.carlength
+          this.carTypeString = DetailInfo.cartype
+          // 货物类型
+          this.choosedGoods.nameList = DetailInfo.goodsname.split('|')
+          this.choosedGoodsList = DetailInfo.goodsname.split('|')
+          this.choosedGoods.codeList = DetailInfo.goodscode.split(',')
+          // 需求备注
+          this.services = DetailInfo.require_fnote.split('|')
+          this.note = DetailInfo.fnote
+          this.serviceString = '| ' + DetailInfo.require_fnote
+          // 期望运费
+          this.formFee.price = DetailInfo.ffee
+          if (!DetailInfo.foilcard) {
+            this.feeString = '期望运费：' + DetailInfo.ffee + '元'
+          } else {
+            this.formFee.oil = DetailInfo.foilcard
+            this.feeString = '期望运费：' + DetailInfo.ffee + '元 / 其中油卡：' + DetailInfo.foilcard + '元'
+          }
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
         }
       }).catch((res) => {
         console.log(res)
@@ -1061,5 +1810,136 @@ export default {
 
 <style lang="less" scoped>
 .OrderDetail{
+  margin: 20px 20px 60px 20px;
+  .columnTit{
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .InfoList{
+    &:not(:last-of-type){
+      border-bottom: 6px solid #efefef;
+    }
+    margin-bottom: 15px;
+    .faBlocksAddr{
+      height: 50px;
+      font-size: 14px;
+      .LeftIcon{
+        width: 50px;
+        height: 50px;
+        float: left;
+      }
+      .MiddleAddr{
+        width: calc(100% - 100px);
+        height: 50px;
+        float: left;
+        text-align: right;
+        p{
+          line-height: 25px;
+        }
+      }
+      .RightArrow{
+        width: 25px;
+        height: 25px;
+        margin-top: 12.5px;
+        float: right;
+      }
+    }
+    .faBlocksTime{
+      height: 25px;
+      line-height: 25px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      span{
+        float: left;
+      }
+      .TimeBlock{
+        width: calc(100% - 100px);
+        float: left;
+        text-align: right;
+      }
+      .RightArrow{
+        width: 25px;
+        height: 25px;
+        float: right;
+      }
+    }
+    .otherInfoBlocks{
+      height: 50px;
+      line-height: 50px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      span{
+        float: left;
+      }
+      .MiddleAddr{
+        width: calc(100% - 100px);
+        height: 50px;
+        float: left;
+        text-align: right;
+        p{
+          line-height: 25px;
+        }
+      }
+      .faBlocksTime{
+        height: 25px;
+        line-height: 25px;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+      .RightArrow{
+        width: 25px;
+        height: 25px;
+        margin-top: 12px;
+        float: right;
+      }
+    }
+  }
+  .ChoosedGoods{
+    width: 100%;
+    display: block;
+  }
+  .GoodsNameLabel{
+    position:relative;
+    display: inline-block;
+    width:115px;
+    height:30px;
+    line-height:30px;
+    border-radius:5px;
+    font-size:11px;
+    text-align:center;
+    border:1px solid #DCDFE6;
+    margin-right: 15px;
+    margin-bottom: 15px;
+  }
+  .closeBlock{
+    cursor: pointer;
+    width:20px;
+    height:20px;
+    line-height:20px;
+    text-align:center;
+    background:#409EFF;
+    border-radius:50%;
+    color:#fff;
+    position:absolute;
+    top:-10px;
+    right: -10px;
+  }
+  .HotGoods{
+    width: 130px;
+    height: 32px;
+    font-size: 14px !important;
+    text-align: center;
+    padding: 5px 15px 5px 10px;
+    border-radius: 3px;
+    border: 1px solid #DCDFE6;
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 5px;
+    cursor: pointer;
+  }
+  .choosedHotGoods{
+    color: #409EFF;
+    border: 1px solid #409EFF;
+  }
 }
 </style>

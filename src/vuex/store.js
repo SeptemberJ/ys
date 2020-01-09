@@ -24,6 +24,7 @@ const state = {
   userTicketInfo: false, // true 有开票信息
   userPartyB: '', // 乙方
   userCode: '',
+  mainUserCode: '', // 主账号code
   checkStatus: null, // 用户信息认证状态 0_未认证 1_已认证 2_人脸识别 3_签署协议 4_已缴押金 5_禁用
   prohibitTips: '对不起，您的账户已被禁用，不能进行该操作！',
   userBalance: 0, // 账户余额
@@ -75,6 +76,9 @@ const actions = {
   },
   changeUserCode ({commit, state}, Code) {
     commit('setUserCode', Code)
+  },
+  changeMainUserCode ({commit, state}, MainCode) {
+    commit('setMainUserCode', MainCode)
   },
   changeUserCheckStatus ({commit, state}, Status) {
     commit('setUserCheckStatus', Status)
@@ -163,6 +167,9 @@ const mutations = {
   },
   setUserCode (state, Code) {
     state.userCode = Code
+  },
+  setMainUserCode (state, MainCode) {
+    state.mainUserCode = MainCode
   },
   setUserCheckStatus (state, Status) {
     state.checkStatus = Status

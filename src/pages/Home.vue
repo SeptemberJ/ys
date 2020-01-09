@@ -4,7 +4,7 @@
       <el-col :span="24">
         <el-row style="background: #65c294;">
           <el-col :span="3" class="siderMenu">
-            <el-menu
+            <el-menu :unique-opened="true"
               :default-active="siderIdx"
               background-color="#65c294"
               text-color="#fff"
@@ -18,7 +18,7 @@
                 <el-menu-item-group>
                   <el-menu-item index="1-1">订单列表</el-menu-item>
                   <el-menu-item index="1-2">订单新增</el-menu-item>
-                  <el-menu-item index="1-7">车辆查询</el-menu-item>
+                  <!-- <el-menu-item index="1-7">车辆查询</el-menu-item> -->
                 </el-menu-item-group>
               </el-submenu>
               <!-- 企业货主才有开票 -->
@@ -48,15 +48,15 @@
               <el-breadcrumb separator="/">
                 <!-- 订单管理导航 -->
                 <el-breadcrumb-item v-if="siderIdx == '1' || siderIdx == '1-1' || siderIdx == '1-2' || siderIdx == '1-3' || siderIdx == '1-4' || siderIdx == '1-6' || siderIdx == '1-5'">订单管理</el-breadcrumb-item>
-                <el-breadcrumb-item v-if="siderIdx == '1-1' && (userRole == 2 || userRole == 5 || userRole == 3)"><span @click="backOrderList" class="CursorPointer">订单列表</span></el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1-1'"><span @click="backOrderList" class="CursorPointer">订单列表</span></el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1-1' && showDetail"><span>订单详情</span></el-breadcrumb-item>
+                <el-breadcrumb-item v-if="siderIdx == '1-2'"><span>订单新增</span></el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '1-7'">车辆查询</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '1-5'">实况查询</el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '1-4'"><span @click="backOrderList" class="CursorPointer">指定接单</span></el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '1-6'"><span @click="backOrderList" class="CursorPointer">未指定接单</span></el-breadcrumb-item>
                 <el-breadcrumb-item v-if="siderIdx == '1-3' && (userRole == 1 || userRole == 4)"><span @click="backOrderList" class="CursorPointer">订单查询</span></el-breadcrumb-item>
                 <el-breadcrumb-item v-if="ifSJOrderSearch && siderIdx == '1-3' && (userRole == 1 || userRole == 4)"><span @click="backSjList" class="CursorPointer">司机订单列表</span></el-breadcrumb-item>
-                <el-breadcrumb-item v-if="siderIdx == '1-2-1' || siderIdx == '1-2-2' || siderIdx == '1-2-3'">{{siderIdx == '1-2-1' ? '普货' : (siderIdx == '1-2-2' ? '危险品' : '冷藏品')}}订单新增</el-breadcrumb-item>
-                <el-breadcrumb-item v-if="showDetail && (siderIdx == '1-1' || siderIdx == '1-3' || siderIdx == '1-4')">订单详情</el-breadcrumb-item>
                 <!-- 开票管理导航 -->
                 <el-breadcrumb-item v-if="siderIdx == '4'">开票管理</el-breadcrumb-item>
                 <!-- 用户管理导航 -->
@@ -182,6 +182,9 @@ export default {
   width: 100%;
   display: block;
   .siderMenu{
+    position: relative;
+    left: 0;
+    top: 0;
     overflow: hidden;
   }
   .mainContent{

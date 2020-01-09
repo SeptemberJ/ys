@@ -2,109 +2,109 @@
   <div class="Order">
     <el-row v-if="!showDetail && !showMap" style="background: #fff;padding: 20px;">
       <el-col :span="24" class="BgWhite MarginT_10">
-        <el-form :inline="true" :model="formCondition" class="demo-form-inline searchForm">
+        <el-form :inline="true" :model="formCondition" label-position="left" label-width="80px" class="demo-form-inline searchForm" style="text-align:left;">
           <el-row>
-            <el-col :span="7" :offset="0">
-              <el-form-item prop="fprovince" label="发货省">
-                <el-select v-model="formCondition.fprovince" size="mini" placeholder="请选择" @change="changeFprovince" style="width: 120px;">
+            <el-col :span="12">
+              <el-form-item label="发货地" size="small">
+                <el-select v-model="formCondition.fprovince" placeholder="请选择省" style="width: 120px;" @change="(id) => changeProvince(id, 0)">
                   <el-option
-                    v-for="(fprovince, idx) in fprovinceList"
-                    :key="idx"
-                    :label="fprovince.fname"
-                    :value="fprovince.id">
+                    v-for="item in ProvinceOptions"
+                    :key="item.id"
+                    :label="item.fname"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+                <el-select v-model="formCondition.fcity" placeholder="请选择市" style="width: 120px;" @change="(id) => changeCity(id, 0)">
+                  <el-option
+                    v-for="item in CityOptions_F"
+                    :key="item.sareacode"
+                    :label="item.sareaname"
+                    :value="item.sareacode">
+                  </el-option>
+                </el-select>
+                <el-select v-model="formCondition.farea" placeholder="请选择区" style="width: 120px;" @change="(id) => changeArea(id, 0)">
+                  <el-option
+                    v-for="item in AreaOptions_F"
+                    :key="item.id"
+                    :label="item.fareaname"
+                    :value="item.fareacode">
                   </el-option>
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="7" :offset="1">
-              <el-form-item prop="fcity" label="发货市">
-                <el-select v-model="formCondition.fcity" size="mini" placeholder="请选择" @change="changeFcity" style="width: 120px;">
+            <el-col :span="12">
+              <el-form-item label="收货地" size="small">
+                <el-select v-model="formCondition.sprovince" placeholder="请选择省" style="width: 120px;" @change="(id) => changeProvince(id, 1)">
                   <el-option
-                    v-for="(fcity, idx) in fcityList"
-                    :key="idx"
-                    :label="fcity.fname"
-                    :value="fcity.id">
+                    v-for="item in ProvinceOptions"
+                    :key="item.id"
+                    :label="item.fname"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+                <el-select v-model="formCondition.scity" placeholder="请选择市" style="width: 120px;" @change="(id) => changeCity(id, 1)">
+                  <el-option
+                    v-for="item in CityOptions_S"
+                    :key="item.sareacode"
+                    :label="item.sareaname"
+                    :value="item.sareacode">
+                  </el-option>
+                </el-select>
+                <el-select v-model="formCondition.sarea" placeholder="请选择区" style="width: 120px;" @change="(id) => changeArea(id, 1)">
+                  <el-option
+                    v-for="item in AreaOptions_S"
+                    :key="item.id"
+                    :label="item.fareaname"
+                    :value="item.fareacode">
                   </el-option>
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="7" :offset="1">
-              <el-form-item prop="farea" label="发货区">
-                <el-select v-model="formCondition.farea" size="mini" placeholder="请选择" style="width: 120px;">
+            <el-col :span="19">
+              <el-form-item label="发货日期" size="small">
+                <el-select v-model="formCondition.fdate" placeholder="请选择" style="width: 120px;">
                   <el-option
-                    v-for="(farea, idx) in fareaList"
-                    :key="idx"
-                    :label="farea.fname"
-                    :value="farea.id">
+                    v-for="item in fdateOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            <!-- </el-col>
+            <el-col :span="6"> -->
+              <el-form-item label="是否常发货源" size="small" label-width="100px">
+                <el-select v-model="formCondition.iscf" placeholder="请选择" style="width: 120px;">
+                  <el-option label="是" value="1"></el-option>
+                  <el-option label="否" value="0"></el-option>
+                </el-select>
+              </el-form-item>
+            <!-- </el-col>
+            <el-col :span="6"> -->
+              <el-form-item label="订单状态" size="small">
+                <el-select v-model="formCondition.fstatus" placeholder="请选择" style="width: 100px;">
+                  <el-option
+                    v-for="item in fstatusOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
                   </el-option>
                 </el-select>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="7" :offset="0">
-              <el-form-item prop="sprovince" label="收货省">
-                <el-select v-model="formCondition.sprovince" size="mini" placeholder="请选择" @change="changeSprovince" style="width: 120px;">
-                  <el-option
-                    v-for="(sprovince, idx) in sprovinceList"
-                    :key="idx"
-                    :label="sprovince.fname"
-                    :value="sprovince.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
+            <el-col :span="5" class="TextAlignR">
+              <el-button type="primary" size="small" icon="el-icon-search" @click="search">查询</el-button>
+              <el-button size="small" icon="el-icon-refresh" @click="reset">重置</el-button>
             </el-col>
-            <el-col :span="7" :offset="1">
-              <el-form-item prop="scity" label="收货市">
-                <el-select v-model="formCondition.scity" size="mini" placeholder="请选择" @change="changeScity" style="width: 120px;">
-                  <el-option
-                    v-for="(scity, idx) in scityList"
-                    :key="idx"
-                    :label="scity.fname"
-                    :value="scity.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="7" :offset="1">
-              <el-form-item prop="sarea" label="收货区">
-                <el-select v-model="formCondition.sarea" size="mini" placeholder="请选择" style="width: 120px;">
-                  <el-option
-                    v-for="(sarea, idx) in sareaList"
-                    :key="idx"
-                    :label="sarea.fname"
-                    :value="sarea.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <!-- <el-row>
-            <el-col :span="7">
-              <el-form-item prop="sarea" label="货物类型">
-                <el-select v-model="formCondition.goodsName" size="mini" placeholder="请选择" style="width: 120px">
-                  <el-option
-                    v-for="(goodsType, idx) in goodsTypeList"
-                    :key="idx"
-                    :label="goodsType.name"
-                    :value="goodsType.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row> -->
-          <el-row class="MarginT_20">
-            <el-button type="primary" size="mini" icon="el-icon-search" @click="onSubmit">查询</el-button>
-            <el-button size="mini" icon="el-icon-refresh" @click="reset">重置</el-button>
           </el-row>
         </el-form>
       </el-col>
       <el-col :span="24" style="width: 100%;height: 10px; border-bottom: 1px dashed #ccc;">
       </el-col>
-      <el-col :span="24"  class="MarginT_20 MarginB_20 TextAlignR">
+      <!-- <el-col :span="24"  class="MarginT_20 TextAlignR">
         <el-button type="success" size="mini" icon="el-icon-printer" @click="exportExcell">导出</el-button>
-      </el-col>
-      <el-col :span="24"  class="MarginT_20 MarginB_20">
+      </el-col> -->
+      <el-col :span="24"  class="MarginB_20">
         <el-table
           id="rebateSetTable"
           ref="multipleTable"
@@ -114,39 +114,52 @@
           style="width: 100%"
           @selection-change="handleSelectionChange">
           <el-table-column
+            type="index"
+            width="50">
+          </el-table-column>
+          <!-- <el-table-column
             type="selection"
             width="55">
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column
-            prop="order_no"
+            prop="orderno"
             label="订单号"
+            width="180"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
+            prop='fstatusTxt'
             label="订单状态"
-            width="120"
-            >
-            <template slot-scope="scope">
-              <span :class="[scope.row.fstatus == 8 ? 'ColorRed' : '']">{{scope.row.fstatusTxt}}</span>
-            </template>
+            width="100">
           </el-table-column>
           <el-table-column
-            prop="origin"
+            prop='faddtime'
+            label="下单时间"
+            width="160">
+          </el-table-column>
+          <el-table-column
+            prop="cfd"
             label="发货地"
+            width="170"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            prop="destination"
+            prop="mdd"
             label="收货地"
+            width="170"
+            show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
+            prop="goodsname"
+            label="货物"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             align="right"
             label="操作"
-            width="380"
-            >
+            width="100">
             <template slot-scope="scope">
-              <el-button
+              <!-- <el-button
                 size="mini"
                 type="danger"
                 :disabled="scope.row.fstatus != 0"
@@ -163,18 +176,18 @@
                 type="info"
                 :disabled="scope.row.fstatus != 1"
                 @click="signAgreement(scope.$index, scope.row)">签署协议
-              </el-button>
+              </el-button> -->
               <el-button
                 size="mini"
                 type="primary"
-                @click="handleEdit(scope.$index, scope.row)">详情
+                @click="toDetail(scope.row)">详情
               </el-button>
-              <el-button
+              <!-- <el-button
                 size="mini"
                 type="success"
                 :disabled="scope.row.fstatus == 0 || scope.row.fstatus == 1 || scope.row.fstatus == 2"
                 @click="viewingPath(scope.$index, scope.row)">轨迹
-              </el-button>
+              </el-button> -->
             </template>
           </el-table-column>
         </el-table>
@@ -183,130 +196,73 @@
         <el-pagination
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage"
-        :page-size="10"
+        :page-size="pageSize"
         layout="total, prev, pager, next, jumper"
         :total="sum">
         </el-pagination>
       </el-col>
     </el-row>
-    <!-- 报价列表 -->
-    <el-dialog title="报价列表" :visible.sync="dialogFormVisible" width="650px">
-      <el-row>
-        <el-table
-          id="rebateSetTable"
-          ref="multipleTable"
-          height="250"
-          :data="offerList"
-          v-loading="loading"
-          tooltip-effect="dark"
-          style="width: 100%">
-          <el-table-column
-            type="index"
-            width="50">
-          </el-table-column>
-          <el-table-column
-            prop="fname"
-            width="100"
-            label="司机">
-          </el-table-column>
-          <el-table-column
-            prop="ffee"
-            width="80"
-            label="报价(¥)">
-          </el-table-column>
-          <el-table-column
-            prop="fmobile"
-            width="120"
-            label="手机号">
-          </el-table-column>
-          <el-table-column
-            prop="fnote"
-            label="备注"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            align="right"
-            label="操作"
-            width="100"
-            >
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="primary"
-                @click="sureOffer(scope.$index, scope.row)">接受报价
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-row>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">关闭</el-button>
-      </div>
-    </el-dialog>
-    <OrderDetail v-if="showDetail && !showMap" @toggleOrderDetail='changeIfOrderDetail'/>
-    <!-- 轨迹 -->
-    <!-- <Map v-if="!showDetail && showMap"/> -->
-    <!-- 运输协议 -->
-    <transportAgreement v-if="showTransportAgreement" :type="0" :orderId="orderId" @refreshList='getOrderList' @closeTransportAgreement='closeTransportAgreement' @closeBaoJiaDialog='closeBaoJiaDialog'/>
+    <OrderDetail v-if="showDetail && !showMap" :curOrderId="curOrderId"/>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
-// import {secondToFormat} from '../../util/utils'
 import OrderDetail from './OrderDetail.vue'
-// import Map from '../Map/Map.vue'
-import transportAgreement from '../transportAgreement.vue'
+// import transportAgreement from '../transportAgreement.vue'
 export default {
   name: 'Order',
   data () {
     return {
-      dialogFormVisible: false,
-      showTransportAgreement: false,
       loading: false,
+      showMap: false,
       currentPage: 1,
+      pageSize: 15,
       sum: 0,
+      curOrderId: '',
       formCondition: {
         fprovince: '',
         fcity: '',
         farea: '',
+        fprovinceId: '',
+        fcityId: '',
+        fareaId: '',
         sprovince: '',
         scity: '',
         sarea: '',
-        goodsName: ''
-        // orderNo: '',
-        // startDate: '',
-        // endDate: ''
+        sprovinceId: '',
+        scityId: '',
+        sareaId: '',
+        fdate: '',
+        fstatus: '',
+        iscf: ''
       },
-      fprovinceList: [],
-      fcityList: [],
-      fareaList: [],
-      sprovinceList: [],
-      scityList: [],
-      sareaList: [],
-      fProvincePid: 100000,
-      fcityPid: '',
-      fareaPid: '',
-      sProvincePid: 100000,
-      scityPid: '',
-      sareaPid: '',
-      orderList: [],
-      selectedOrder: [],
-      offerList: [],
-      orderId: null // 准备接受报价的订单id
-
+      ProvinceOptions: [],
+      CityOptions_F: [],
+      AreaOptions_F: [],
+      CityOptions_S: [],
+      AreaOptions_S: [],
+      fdateOptions: [
+        {label: '今天', value: 0},
+        {label: '近3天', value: 1},
+        {label: '近一周', value: 2},
+        {label: '近一个月', value: 3}
+      ],
+      fstatusOptions: [
+        {label: '发货中', value: 0},
+        {label: '历史发货', value: 1}
+      ],
+      orderList: []
     }
   },
   computed: {
     ...mapState({
       userRole: state => state.userRole,
-      checkStatus: state => state.checkStatus,
-      userCode: state => state.userCode,
       showDetail: state => state.showDetail,
-      showMap: state => state.showMap,
-      searchOrderId: state => state.searchOrderId,
-      carTypeList: state => state.carTypeList,
-      goodsTypeList: state => state.goodsTypeList
+      // checkStatus: state => state.checkStatus,
+      userCode: state => state.userCode
+      // carTypeList: state => state.carTypeList,
+      // goodsTypeList: state => state.goodsTypeList
     })
   },
   created () {
@@ -314,9 +270,44 @@ export default {
     this.getProvince()
   },
   components: {
-    OrderDetail,
-    transportAgreement
+    OrderDetail
+    // transportAgreement
     // Map,
+  },
+  watch: {
+    showDetail: function (value) {
+      if (!value) {
+        this.getOrderList()
+      }
+    },
+    'formCondition.fprovince': function (value) {
+      if (value) {
+        this.formCondition.fcity = ''
+        this.formCondition.farea = ''
+        this.AreaOptions_F = []
+        this.getCity(0)
+      }
+    },
+    'formCondition.fcity': function (value) {
+      if (value) {
+        this.formCondition.farea = ''
+        this.getArea(0)
+      }
+    },
+    'formCondition.sprovince': function (value) {
+      if (value) {
+        this.formCondition.scity = ''
+        this.formCondition.sarea = ''
+        this.AreaOptions_S = []
+        this.getCity(1)
+      }
+    },
+    'formCondition.scity': function (value) {
+      if (value) {
+        this.formCondition.sarea = ''
+        this.getArea(1)
+      }
+    }
   },
   methods: {
     ...mapActions([
@@ -324,180 +315,103 @@ export default {
       'changeShowMap',
       'changeSearchOrderId'
     ]),
-    handleSelectionChange (selection) {
-      let tempChoosed = []
-      selection.map((Order, idx) => {
-        let obj = {
-          order_no: Order.order_no,
-          fstatusTxt: Order.fstatusTxt,
-          goods_name: this.checkGoodsType(Order.goods_name),
-          fh_name: Order.fh_name,
-          fh_telephone: Order.fh_telephone,
-          origin: Order.origin,
-          fh_address: Order.fh_address,
-          sh_name: Order.sh_name,
-          sh_telephone: Order.sh_telephone,
-          destination: Order.destination,
-          sh_address: Order.sh_address,
-          carType: this.checkCarType(Order.car_type),
-          zhTime: Order.zhDate,
-          isFapiao: Order.is_fapiao === '0' ? '不需要' : '需要',
-          ffee: Order.ffee
-        }
-        tempChoosed.push(obj)
-      })
-      this.selectedOrder = tempChoosed
-    },
-    changeIfOrderDetail () {
-      this.changeShowDetail(false)
-      this.getOrderList()
-    },
-    closeTransportAgreement () {
-      this.showTransportAgreement = false
-    },
-    closeBaoJiaDialog () {
-      this.dialogFormVisible = false
-    },
-    handleEdit (idx, row) {
-      this.changeShowDetail(true)
-      this.changeSearchOrderId(row.id)
-    },
-    signAgreement (idx, row) {
-      this.orderId = row.id
-      this.showTransportAgreement = true
-    },
-    // 查看轨迹
-    viewingPath (index, row) {
-      this.changeShowMap(true)
-      localStorage['MapId'] = row.id
-    },
-    // 查看报价
-    getOfferList (idx, row) {
-      this.send({
-        name: '/orderController/driverPriceList?order_id=' + row.id,
-        method: 'GET',
-        data: {}
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.dialogFormVisible = true
-          this.offerList = res.data.data
-        } else {
-          this.$message({
-            message: res.data.message + '！',
-            type: 'error'
-          })
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    // 确认报价
-    sureOffer (idx, row) {
-      if (this.checkStatus === '2') {
-        this.$message({
-          message: this.$store.state.prohibitTips,
-          type: 'warning'
-        })
-      } else {
-        this.orderId = row.order_id
-        this.send({
-          name: '/orderController/confirmOrder?driver_id=' + row.driver_id + '&order_id=' + row.order_id + '&ffee=' + row.ffee,
-          method: 'GET'
-        }).then(res => {
-          if (res.data.respCode === '0') {
-            this.dialogFormVisible = false
-            this.$message({
-              message: '确认报价成功！',
-              type: 'success'
-            })
-            this.showTransportAgreement = true
-          } else {
-            this.$message({
-              message: res.data.message + '！',
-              type: 'error'
-            })
-          }
-        }).catch((res) => {
-          console.log(res)
-        })
-      }
-    },
-    handleCancel (idx, row) {
-      if (this.checkStatus === '2') {
-        this.$message({
-          message: this.$store.state.prohibitTips,
-          type: 'warning'
-        })
-      } else {
-        this.$confirm('此操作将取消该订单, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.sureCancel(row.id)
-        }).catch(() => {
-        })
-      }
-    },
-    sureCancel (id) {
-      this.send({
-        name: '/orderController/cancelOrder?id=' + id,
-        method: 'POST',
-        data: {}
-      }).then(res => {
-        if (res.data.respCode === '0') {
-          this.getOrderList()
-          this.$message({
-            type: 'success',
-            message: '订单取消成功!'
-          })
-        } else {
-          this.$message({
-            message: res.data.message + '！',
-            type: 'error'
-          })
-        }
-      }).catch((res) => {
-        console.log(res)
-      })
-    },
-    handleCurrentChange () {
-      this.getOrderList()
-    },
-    onSubmit () {
-      this.getOrderList(this.formCondition.farea, this.formCondition.sarea)
-    },
     reset () {
-      this.formCondition.fprovince = ''
-      this.formCondition.fcity = ''
-      this.formCondition.farea = ''
-      this.formCondition.sprovince = ''
-      this.formCondition.scity = ''
-      this.formCondition.sarea = ''
+      this.formCondition = {
+        fprovince: '',
+        fcity: '',
+        farea: '',
+        fprovinceId: '',
+        fcityId: '',
+        fareaId: '',
+        sprovince: '',
+        scity: '',
+        sarea: '',
+        sprovinceId: '',
+        scityId: '',
+        sareaId: '',
+        fdate: '',
+        fstatus: '',
+        iscf: ''
+      }
+      this.CityOptions_F = []
+      this.AreaOptions_F = []
+      this.CityOptions_S = []
+      this.AreaOptions_S = []
+      this.getOrderList()
+    },
+    search () {
+      this.currentPage = 1
+      this.getOrderList()
+    },
+    toDetail (row) {
+      this.changeShowDetail(true)
+      this.curOrderId = row.id
+    },
+    handleSelectionChange () {},
+    handleCurrentChange () {
       this.getOrderList()
     },
     getOrderList (farea, sarea) {
       this.loading = true
-      let urlName = ''
-      // 主账户
-      if (this.userRole === '1' || this.userRole === '2' || this.userRole === '3') {
-        urlName = '/orderController/orderList/' + this.userCode + '/' + this.currentPage + '/10?' + (farea ? 'fh=' + farea : '') + (sarea ? (farea ? '&sh=' : 'sh=') + sarea : '')
-      }
-      // 子账户
-      if (this.userRole === '4' || this.userRole === '5') {
-        urlName = '/orderController/subOrderList?number=10&page_num=' + this.currentPage + '&sub_usercode=' + this.userCode + (farea ? '&fh=' + farea : '') + (sarea ? '&sh=' + sarea : '')
-      }
       this.send({
-        name: urlName,
+        name: '/zOrderController/list/' + this.currentPage + '/' + this.pageSize + '?mainid=' + this.userCode + '&fstatus=' + this.formCondition.fstatus + '&iscf=' + this.formCondition.iscf + '&fdate=' + this.formCondition.fdate + '&fh=' + this.formCondition.fareaId + '&sh=' + this.formCondition.sareaId,
         method: 'GET',
         data: {}
       }).then(res => {
         if (res.data.respCode === '0') {
           this.sum = res.data.size
+          // this.orderList = res.data.data
           this.orderList = res.data.data.map(order => {
-            order.zhDate = order.zh_time // secondToFormat(order.zh_time.time)
-            order.fstatusTxt = (order.fstatus === '0' ? '待接单' : (order.fstatus === '1' ? '已接单' : (order.fstatus === '2' ? '已发起协议' : (order.fstatus === '3' ? '已签署协议' : (order.fstatus === '4' ? '运输中' : (order.fstatus === '5' ? '已签收' : (order.fstatus === '6' ? '待货主确认' : (order.fstatus === '7' ? '已取消' : (order.fstatus === '8' ? '待支付' : (order.fstatus === '9' ? '已结单' : '其它'))))))))))
-            return order
+            switch (order.fstatus) {
+              case '0':
+                order.fstatusTxt = '下单'
+                return order
+              case '1':
+                order.fstatusTxt = '接单'
+                return order
+              case '2':
+                order.fstatusTxt = '货主确认协议'
+                return order
+              case '3':
+                order.fstatusTxt = '已签署'
+                return order
+              case '4':
+                order.fstatusTxt = '运输'
+                return order
+              case '5':
+                order.fstatusTxt = '签收'
+                return order
+              case '6':
+                order.fstatusTxt = '货主确认'
+                return order
+              case '7':
+                order.fstatusTxt = '已取消'
+                return order
+              case '8':
+                order.fstatusTxt = '待支付'
+                return order
+              case '9':
+                order.fstatusTxt = '结单'
+                return order
+              case '10':
+                order.fstatusTxt = '已评价'
+                return order
+              case '11':
+                order.fstatusTxt = '已评价'
+                return order
+              case 'A':
+                order.fstatusTxt = '支付完押金'
+                return order
+              case 'B':
+                order.fstatusTxt = '货主支付运费'
+                return order
+              case 'C':
+                order.fstatusTxt = '回单上传'
+                return order
+              case 'D':
+                order.fstatusTxt = '删除'
+                return order
+            }
           })
         } else {
           this.$message({
@@ -510,23 +424,6 @@ export default {
         console.log(res)
         this.loading = false
       })
-    },
-    checkCarType (carTypeId) {
-      let len = this.carTypeList.length
-      for (let i = 0; i < len; i++) {
-        if (this.carTypeList[i].id === carTypeId) {
-          return this.carTypeList[i].typeName
-        }
-      }
-    },
-    // 根据货物id返回中文名称
-    checkGoodsType (goodsTypeId) {
-      let len = this.goodsTypeList.length
-      for (let i = 0; i < len; i++) {
-        if (this.goodsTypeList[i].id === goodsTypeId) {
-          return this.goodsTypeList[i].name
-        }
-      }
     },
     exportExcell () {
       if (this.selectedOrder.length === 0) {
@@ -547,70 +444,107 @@ export default {
     formatJson (filterVal, jsonData) {
       return jsonData.map(v => filterVal.map(j => v[j]))
     },
-    // order search module
-    // 改变发货地省
-    changeFprovince (id) {
-      this.getCity(id, 'fcityList')
-      this.formCondition.fcity = ''
-      this.formCondition.farea = ''
+    changeProvince (id, type) {
+      this.ProvinceOptions.find(Province => {
+        if (Province.id === id) {
+          if (type === 0) {
+            this.formCondition.fprovince = Province.fname
+            this.formCondition.fprovinceId = Province.id
+          } else {
+            this.formCondition.sprovince = Province.fname
+            this.formCondition.sprovinceId = Province.id
+          }
+        }
+      })
     },
-    // 改变发货地市
-    changeFcity (id) {
-      this.getArea(id, 'fareaList')
-      this.formCondition.farea = ''
+    changeCity (id, type) {
+      if (type === 0) {
+        this.CityOptions_F.find(City => {
+          if (City.sareacode === id) {
+            this.formCondition.fcity = City.sareaname
+            this.formCondition.fcityId = City.sareacode
+          }
+        })
+      } else {
+        this.CityOptions_S.find(City => {
+          if (City.sareacode === id) {
+            this.formCondition.scity = City.sareaname
+            this.formCondition.scityId = City.sareacode
+          }
+        })
+      }
     },
-    // 改变收货地省
-    changeSprovince (id) {
-      this.getCity(id, 'scityList')
-      this.formCondition.scity = ''
-      this.formCondition.sarea = ''
+    changeArea (id, type) {
+      if (type === 0) {
+        this.AreaOptions_F.find(Area => {
+          if (Area.fareacode === id) {
+            this.formCondition.farea = Area.fareaname
+            this.formCondition.fareaId = Area.fareacode
+          }
+        })
+      } else {
+        this.AreaOptions_S.find(Area => {
+          if (Area.fareacode === id) {
+            this.formCondition.sarea = Area.fareaname
+            this.formCondition.sareaId = Area.fareacode
+          }
+        })
+      }
     },
-    // 改变收货地市
-    changeScity (id) {
-      this.getArea(id, 'sareaList')
-      this.formCondition.sarea = ''
-    },
-    // 获取省下拉
     getProvince () {
       this.send({
-        name: '/registerDriverController/regionSelect?pid=' + this.fProvincePid,
-        method: 'GET',
-        data: {
-        }
+        name: '/tokens/regionSelect?pid=100000',
+        method: 'GET'
       }).then(res => {
         if (res.data.respCode === '0') {
-          this.fprovinceList = res.data.data
-          this.sprovinceList = res.data.data
+          this.ProvinceOptions = res.data.data
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
         }
       }).catch((res) => {
         console.log(res)
       })
     },
-    // 获取市下拉
-    getCity (id, property) {
+    getCity (type) {
       this.send({
-        name: '/registerDriverController/regionSelect?pid=' + id,
-        method: 'GET',
-        data: {
-        }
+        name: '/tokens/regionSelect?pid=' + (type === 0 ? this.formCondition.fprovinceId : this.formCondition.sprovinceId) + '&ftype=0&fname=' + (type === 0 ? this.formCondition.fprovince : this.formCondition.sprovince),
+        method: 'GET'
       }).then(res => {
         if (res.data.respCode === '0') {
-          this[property] = res.data.data
+          if (type === 0) {
+            this.CityOptions_F = res.data.data
+          } else {
+            this.CityOptions_S = res.data.data
+          }
+        } else {
+          this.$message({
+            message: res.data.message + '！111',
+            type: 'error'
+          })
         }
       }).catch((res) => {
         console.log(res)
       })
     },
-    // 获取区下拉
-    getArea (id, property) {
+    getArea (type) {
       this.send({
-        name: '/registerDriverController/regionSelect?pid=' + id,
-        method: 'GET',
-        data: {
-        }
+        name: '/tokens/regionSelect?pid=' + (type === 0 ? this.formCondition.fcityId : this.formCondition.scityId) + '&ftype=1&fname=' + (type === 0 ? this.formCondition.fcity : this.formCondition.scity),
+        method: 'GET'
       }).then(res => {
         if (res.data.respCode === '0') {
-          this[property] = res.data.data
+          if (type === 0) {
+            this.AreaOptions_F = res.data.data
+          } else {
+            this.AreaOptions_S = res.data.data
+          }
+        } else {
+          this.$message({
+            message: res.data.message + '！',
+            type: 'error'
+          })
         }
       }).catch((res) => {
         console.log(res)
